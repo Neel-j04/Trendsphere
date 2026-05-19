@@ -1,0 +1,26 @@
+# ─── Flask + Web ───────────────────────────────────────────────
+flask
+werkzeug
+python-dotenv
+httpx
+
+# ─── PostgreSQL ────────────────────────────────────────────────
+psycopg2-binary
+
+# ─── FastAPI ML Service ────────────────────────────────────────
+fastapi
+uvicorn[standard]
+pydantic
+
+# ─── ML / Data ────────────────────────────────────────────────
+scikit-learn
+xgboost
+pandas
+numpy
+joblib
+
+# ─── Security ─────────────────────────────────────────────────
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+slowapi
