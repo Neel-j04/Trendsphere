@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block extra_css %}
+<style>
+.faq-wrap{max-width:800px;margin:40px auto;padding:0 32px}
+.faq-item{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.faq-item.open{border-color:var(--primary)}
+.faq-q{padding:18px 20px;font-size:15px;font-weight:600;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;user-select:none}
+.faq-q:hover{color:var(--primary)}
+.faq-arrow{font-size:12px;transition:transform .3s;flex-shrink:0;color:var(--primary)}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s}
+.faq-item.open .faq-a{max-height:300px;padding:0 20px 18px}
+.faq-a p{font-size:14px;color:var(--text3);line-height:1.8}
+.faq-cats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.faq-cat{padding:8px 20px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:#fff}
+.faq-cat.active,.faq-cat:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-inner"><h1 class="page-h1">❓ Frequently Asked Questions</h1><p class="page-sub">Everything you need to know about TrendSphere</p></div></div>
+<div class="faq-wrap">
+  <div class="faq-cats">
+    {% for cat in ['All','Orders','Payments','Returns','Delivery','AI Features','Account'] %}
+    <div class="faq-cat {% if cat=='All' %}active{% endif %}" onclick="filterFaq(this,'{{ cat }}')">{{ cat }}</div>
+    {% endfor %}
+  </div>
+  {% set faqs = [
+    ('How does TrendSphere\'s AI predict trends?','AI Features','Our ML ensemble uses LSTM neural networks for time-series forecasting, XGBoost for category classification, and Facebook Prophet for seasonal decomposition. Together, they analyze 10M+ data points from Amazon India sales history to predict demand 30 days ahead with 94.3% accuracy.'),
+    ('How do I track my order?','Orders','Log in to your account, go to My Orders, and click on any order to see real-time tracking status. You\'ll also receive SMS and email updates at every stage.'),
+    ('What payment methods are accepted?','Payments','We accept all major credit/debit cards, Net Banking, UPI (GPay, PhonePe, BHIM), Wallets, and Cash on Delivery for eligible orders above ₹100.'),
+    ('What is the return policy?','Returns','We offer a 30-day easy return policy. Simply go to My Orders, select the item, and click Return. Our pickup partner will collect it from your doorstep within 2-3 business days.'),
+    ('How long does delivery take?','Delivery','Standard delivery takes 3-5 business days. Express delivery (2-3 days) is available for select pin codes. Free delivery on all orders above ₹499.'),
+    ('Can I cancel my order?','Orders','Orders can be cancelled within 24 hours of placement. After that, you can request a return once delivered. Go to My Orders → Select Order → Cancel Order.'),
+    ('Do you offer returns?','Orders','Yes, we offer hassle-free returns within 7 days of delivery. Contact our support team.'),
+    ('Is my payment information secure?','Payments','Yes, absolutely. We use 256-bit SSL encryption for all transactions and are PCI-DSS compliant. We never store your card details on our servers.'),
+    ('What is the AI Trend Score?','AI Features','The Trend Score (0-100%) indicates how likely a product is to see increased demand in the next 30 days, based on our ML model\'s prediction. Higher score = stronger predicted demand.'),
+    ('How do I reset my password?','Account','Go to Login → Forgot Password → enter your registered email. You\'ll receive an OTP to reset your password within 2 minutes.')
+  ] %}
+  {% for q, cat, a in faqs %}
+  <div class="faq-item" data-cat="{{ cat }}" onclick="toggleFaq(this)">
+    <div class="faq-q">{{ q }} <span class="faq-arrow">▼</span></div>
+    <div class="faq-a"><p>{{ a }}</p></div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function toggleFaq(el) { el.classList.toggle('open'); }
+function filterFaq(btn, cat) {
+  document.querySelectorAll('.faq-cat').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.style.display = (cat === 'All' || item.dataset.cat === cat) ? 'block' : 'none';
+  });
+}
+</script>
+{% endblock %}

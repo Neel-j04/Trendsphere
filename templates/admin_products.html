@@ -1,0 +1,104 @@
+{% extends "admin_base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">Products</span></div>
+    <h1>Products</h1>
+    <p>{{ products|length }} product{{ 's' if products|length != 1 }} found</p>
+  </div>
+  <div class="d-flex g8 ai-c">
+    <a href="/admin/products/export-csv" class="btn btn-outline btn-sm"><i class="fa fa-download"></i> Export CSV</a>
+    <a href="/admin/products/add" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Product</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-20">
+  <div class="c-body">
+    <form method="GET" class="d-flex g8 ai-c" style="flex-wrap:wrap">
+      <div style="position:relative;flex:1;min-width:200px">
+        <i class="fa fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px"></i>
+        <input name="q" class="f-ctrl" style="padding-left:32px" placeholder="Search products…" value="{{ search }}">
+      </div>
+      <select name="cat" class="f-ctrl f-select" style="width:160px">
+        <option value="">All Categories</option>
+        {% for c in categories %}<option value="{{ c.name }}" {{ 'selected' if active_cat==c.name else '' }}>{{ c.name }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-outline btn-sm"><i class="fa fa-filter"></i> Filter</button>
+      {% if search or active_cat %}
+      <a href="/admin/products" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Clear</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Products Table -->
+<div class="card">
+  <div class="c-body-0">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Product</th><th>Category</th><th>Price</th><th>Stock</th>
+          <th>Rating</th><th>Badge</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>
+            <div class="d-flex ai-c g12">
+              <div style="width:38px;height:38px;background:var(--ink3);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
+                {{ p.emoji or '📦' }}
+              </div>
+              <div style="min-width:0">
+                <div style="font-weight:700;color:var(--text);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">{{ p.name }}</div>
+                <div style="font-size:11px;color:var(--text4)">{{ p.brand }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge bg-teal">{{ p.category }}</span></td>
+          <td style="font-weight:700;color:var(--text)">₹{{ "{:,}".format(p.price|int) }}</td>
+          <td>
+            <span class="badge {% if p.stock > 20 %}bg-green{% elif p.stock > 5 %}bg-yellow{% else %}bg-red{% endif %}">
+              {{ p.stock }}
+            </span>
+          </td>
+          <td>
+            <span style="color:var(--yellow)">★</span>
+            <span style="font-size:12.5px;font-weight:600;color:var(--text)">{{ p.avg_rating or 0 }}</span>
+          </td>
+          <td>
+            {% if p.badge == 'hot' %}<span class="badge bg-red">🔥 Hot</span>
+            {% elif p.badge == 'new' %}<span class="badge bg-green">✨ New</span>
+            {% elif p.badge == 'top' %}<span class="badge bg-yellow">⭐ Top</span>
+            {% elif p.badge %}<span class="badge bg-muted">{{ p.badge }}</span>
+            {% else %}<span class="c-m" style="font-size:12px">—</span>{% endif %}
+          </td>
+          <td>
+            {% if p.is_active %}<span class="badge bg-green">Active</span>
+            {% else %}<span class="badge bg-red">Inactive</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex g8">
+              <a href="/admin/products/edit/{{ p.id }}" class="btn btn-outline btn-xs btn-icon" title="Edit"><i class="fa fa-edit"></i></a>
+              {% if p.is_active %}
+              <form method="POST" action="/admin/products/delete/{{ p.id }}" style="display:inline" onsubmit="return confirm('Deactivate this product?')">
+                <button class="btn btn-danger btn-xs btn-icon" title="Deactivate"><i class="fa fa-trash"></i></button>
+              </form>
+              {% else %}
+              <form method="POST" action="/admin/products/restore/{{ p.id }}" style="display:inline">
+                <button class="btn btn-teal btn-xs btn-icon" title="Restore"><i class="fa fa-undo"></i></button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><div class="empty" style="padding:48px"><div class="ei">📦</div><p>No products found. <a href="/admin/products/add" class="c-p">Add one →</a></p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

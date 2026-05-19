@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block extra_css %}
+<style>
+.checkout-layout{display:grid;grid-template-columns:1fr 360px;gap:28px;max-width:1200px;margin:0 auto;padding:28px 32px;align-items:start}
+.checkout-steps{display:flex;gap:0;margin-bottom:28px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.step{flex:1;padding:14px 20px;font-size:13px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:8px;border-right:1px solid var(--border)}
+.step:last-child{border-right:none}
+.step.active{color:var(--primary);background:var(--primary-bg)}
+.step.done{color:var(--green)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.step.active .step-num{background:var(--primary);color:#fff}
+.step.done .step-num{background:var(--green);color:#fff}
+.checkout-section{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);margin-bottom:16px}
+.checkout-section-header{padding:16px 20px;border-bottom:1px solid var(--border-light);font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.checkout-section-body{padding:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.payment-method{display:flex;gap:12px;flex-wrap:wrap}
+.pay-card{flex:1;min-width:120px;border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;cursor:pointer;transition:all .2s;background:#fff}
+.pay-card.selected{border-color:var(--primary);background:var(--primary-bg)}
+.pay-card:hover{border-color:var(--primary)}
+.pay-icon{font-size:28px;margin-bottom:6px}
+.pay-label{font-size:12px;font-weight:600;color:var(--text2)}
+.order-item-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light)}
+.order-item-row:last-child{border-bottom:none}
+</style>
+{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="/">Home</a><span class="sep">/</span><a href="/cart">Cart</a><span class="sep">/</span><span>Checkout</span>
+</div>
+<div style="max-width:1200px;margin:0 auto;padding:20px 32px">
+  <div class="checkout-steps">
+    <div class="step done"><div class="step-num">✓</div> Cart</div>
+    <div class="step active"><div class="step-num">2</div> Checkout</div>
+    <div class="step"><div class="step-num">3</div> Payment</div>
+    <div class="step"><div class="step-num">4</div> Confirmation</div>
+  </div>
+</div>
+<div class="checkout-layout">
+  <div>
+    <!-- Address -->
+    <div class="checkout-section">
+      <div class="checkout-section-header">📍 Delivery Address</div>
+      <div class="checkout-section-body">
+        <div style="background:var(--primary-bg);border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:var(--navy)">{{ session.get('name','User') }}</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:4px">Symbiosis Skills & Professional University, Pune, Maharashtra 411001</div>
+          </div>
+          <span class="badge badge-green">Default</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--teal);cursor:pointer" onclick="document.getElementById('addForm').style.display='block'">+ Add New Address</div>
+        <div id="addForm" style="display:none;margin-top:16px">
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" placeholder="Enter full name"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" placeholder="10-digit mobile number"></div>
+            <div class="form-group"><label class="form-label">Address</label><input class="form-input" type="text" placeholder="House No., Street, Area"></div>
+            <div class="form-group"><label class="form-label">City</label><input class="form-input" type="text" placeholder="City"></div>
+            <div class="form-group"><label class="form-label">State</label><input class="form-input" type="text" placeholder="State"></div>
+            <div class="form-group"><label class="form-label">Pincode</label><input class="form-input" type="text" placeholder="6-digit pincode"></div>
+          </div>
+          <button class="btn btn-primary">Save Address</button>
+        </div>
+      </div>
+    </div>
+    <!-- Payment -->
+    <div class="checkout-section">
+      <div class="checkout-section-header">💳 Payment Method</div>
+      <div class="checkout-section-body">
+        <div class="payment-method" id="payMethods">
+          {% for icon, label, val in [('💳','Credit/Debit Card','card'),('🏦','Net Banking','netbanking'),('📱','UPI','upi'),('💵','Cash on Delivery','cod')] %}
+          <div class="pay-card {% if loop.first %}selected{% endif %}" onclick="selectPay(this)">
+            <div class="pay-icon">{{ icon }}</div>
+            <div class="pay-label">{{ label }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div id="cardFields" style="margin-top:18px">
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:1/-1"><label class="form-label">Card Number</label><input class="form-input" type="text" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+            <div class="form-group"><label class="form-label">Expiry Date</label><input class="form-input" type="text" placeholder="MM/YY"></div>
+            <div class="form-group"><label class="form-label">CVV</label><input class="form-input" type="text" placeholder="***" maxlength="3"></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name on Card</label><input class="form-input" type="text" placeholder="Full name as on card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Order Summary -->
+  <div>
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:22px">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px">📦 Order Summary</div>
+      {% for item in cart %}
+      <div class="order-item-row">
+        <div style="font-size:28px;width:40px;text-align:center">{{ item.emoji }}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">{{ item.name }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">Qty: {{ item.qty }}</div>
+        </div>
+        <div style="font-weight:700;font-size:14px">₹{{ "{:,}".format(item.price * item.qty) }}</div>
+      </div>
+      {% endfor %}
+      <div style="border-top:2px solid var(--border);margin-top:14px;padding-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text2);margin-bottom:8px"><span>Subtotal</span><span>₹{{ "{:,}".format(subtotal) }}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--green);margin-bottom:8px"><span>Delivery</span><span>FREE</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:var(--navy);margin-top:10px"><span>Total</span><span>₹{{ "{:,}".format(subtotal) }}</span></div>
+      </div>
+      <form action="/place-order" method="post" style="margin-top:18px">
+        <button type="submit" class="btn btn-primary btn-full btn-lg">🔒 Place Order</button>
+      </form>
+      <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:10px"><i class="fa fa-lock"></i> 256-bit SSL secured</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function selectPay(el) {
+  document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const label = el.querySelector('.pay-label').textContent;
+  document.getElementById('cardFields').style.display = label.includes('Card') ? 'block' : 'none';
+}
+</script>
+{% endblock %}

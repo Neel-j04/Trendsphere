@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block extra_css %}
+<style>
+.auth-page{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:linear-gradient(135deg,#FFF8F0 0%,#F5F5F5 100%)}
+.auth-box{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-xl);padding:40px 44px;width:100%;max-width:480px;box-shadow:var(--shadow-lg)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo .logo{display:inline-flex;font-size:24px}
+.auth-title{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--navy);margin-bottom:6px;text-align:center}
+.auth-sub{font-size:14px;color:var(--text-muted);text-align:center;margin-bottom:28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="logo"><div class="logo-icon">🔮</div> Trend<span>Sphere</span></div></div>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-sub">Join TrendSphere and shop AI-predicted trends</p>
+    {% with messages = get_flashed_messages() %}{% if messages %}{% for msg in messages %}<div class="flash">✅ {{ msg }}</div>{% endfor %}{% endif %}{% endwith %}
+    <form method="post" action="/signup">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" name="name" placeholder="Triveni Sharma" value="{{ form.name if form else '' }}" required></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" name="email" placeholder="you@example.com" required></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" type="tel" name="phone" placeholder="10-digit mobile number" required></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" name="password" placeholder="Min 8 characters" required></div>
+      <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" name="confirm_password" placeholder="Re-enter password" required></div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;font-size:13px;color:var(--text3)">
+        <input type="checkbox" required style="margin-top:3px;accent-color:var(--primary)">
+        <span>I agree to the <a href="#" style="color:var(--primary);font-weight:600">Terms of Service</a> and <a href="#" style="color:var(--primary);font-weight:600">Privacy Policy</a></span>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg">Create Account →</button>
+    </form>
+    <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--text-muted)">
+      Already have an account? <a href="/login" style="color:var(--primary);font-weight:700">Sign In</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

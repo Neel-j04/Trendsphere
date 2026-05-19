@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}AI Trending Products — TrendSphere{% endblock %}
+{% block extra_css %}
+<style>
+.trend-hero{background:linear-gradient(135deg,#0A0E1A 0%,#131921 60%,#0D2B35 100%);
+  padding:52px 32px;position:relative;overflow:hidden;margin-bottom:0}
+.trend-hero::before{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;
+  background:radial-gradient(circle,rgba(255,111,0,.14),transparent 70%);pointer-events:none}
+.trend-hero::after{content:'';position:absolute;left:20%;bottom:-80px;width:320px;height:320px;
+  background:radial-gradient(circle,rgba(0,229,204,.08),transparent 70%);pointer-events:none}
+.filter-bar{background:#fff;border-bottom:1px solid #E8ECF0;padding:12px 32px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:60px;z-index:50}
+.filter-chip{padding:6px 16px;border-radius:20px;font-size:12.5px;font-weight:700;text-decoration:none;border:1.5px solid #E8ECF0;color:#718096;transition:all .2s;white-space:nowrap}
+.filter-chip:hover{border-color:var(--primary);color:var(--primary)}
+.filter-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.ts-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.ts-viral{background:rgba(239,68,68,.12);color:#DC2626}
+.ts-hot{background:rgba(255,111,0,.12);color:#EA580C}
+.ts-rising{background:rgba(34,197,94,.12);color:#16A34A}
+.ts-stable{background:rgba(59,130,246,.12);color:#2563EB}
+.ts-cold{background:rgba(139,92,246,.12);color:#7C3AED}
+.score-bar{height:5px;background:#F1F5F9;border-radius:3px;overflow:hidden;margin-top:5px}
+.score-fill{height:100%;border-radius:3px;transition:width 1s}
+.t-card{background:#fff;border:1.5px solid #E8ECF0;border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative}
+.t-card:hover{border-color:var(--primary);box-shadow:0 8px 32px rgba(255,111,0,.15);transform:translateY(-4px)}
+</style>
+{% endblock %}
+{% block content %}
+<!-- Hero -->
+<div class="trend-hero">
+  <div style="max-width:1300px;margin:0 auto;position:relative;z-index:1">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,111,0,.15);border:1px solid rgba(255,111,0,.3);color:var(--primary);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px">
+      <span style="font-size:7px">●</span> Live AI Engine
+    </div>
+    <h1 style="font-family:var(--font-display,sans-serif);font-size:clamp(26px,4vw,44px);font-weight:800;color:#fff;margin-bottom:10px;line-height:1.15">
+      🔮 AI Trend Predictions
+    </h1>
+    <p style="font-size:14.5px;color:rgba(255,255,255,.55);max-width:520px;line-height:1.7">
+      Products ranked by our XGBoost model — analysing views, searches, wishlists and cart signals to predict what goes viral next.
+    </p>
+    <div style="display:flex;gap:28px;margin-top:22px;flex-wrap:wrap">
+      {% set viral_c = trend_products|selectattr('trend_status','equalto','viral')|list|length %}
+      {% set hot_c   = trend_products|selectattr('trend_status','equalto','hot')|list|length %}
+      {% set rising_c= trend_products|selectattr('trend_status','equalto','rising')|list|length %}
+      {% for val, lbl, col in [
+        (trend_products|length,'Scored','#fff'),
+        (viral_c,'Viral 🔥','#F85149'),
+        (hot_c,'Hot ♨','var(--primary)'),
+        (rising_c,'Rising 📈','#3FB950')
+      ] %}
+      <div>
+        <div style="font-size:30px;font-weight:800;color:{{ col }};line-height:1">{{ val }}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px">{{ lbl }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  {% set sf = request.args.get('status','') %}
+  {% for val, lbl in [('','All'),('viral','Viral'),('hot','Hot'),('rising','Rising'),('stable','Stable')] %}
+  <a href="{{ '/trending?status='+val if val else '/trending' }}" class="filter-chip {{ 'on' if sf==val }}">{{ lbl }}</a>
+  {% endfor %}
+</div>
+
+<!-- Grid -->
+<div style="max-width:1300px;margin:0 auto;padding:28px 32px">
+  {% set sf = request.args.get('status','') %}
+  {% set filtered = trend_products|selectattr('trend_status','equalto',sf)|list if sf else trend_products %}
+  {% if filtered %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px">
+    {% for p in filtered %}
+    {% set growth = ((p.forecast_7d|float - p.trend_score|float)*100)|round(1) %}
+    <div class="t-card" onclick="window.location='/product/{{ p.id }}'">
+      <!-- Image -->
+      <div style="height:175px;background:#F8FAFD;display:flex;align-items:center;justify-content:center;font-size:68px;position:relative;overflow:hidden">
+        {% if p.image_url or p.pi_url %}
+        <img src="{{ p.pi_url or p.image_url }}" alt="{{ p.name }}" style="width:100%;height:100%;object-fit:cover">
+        {% else %}{{ p.emoji or '📦' }}{% endif %}
+        <!-- Rank -->
+        <div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:{% if loop.index<=3 %}var(--primary){% else %}rgba(0,0,0,.45){% endif %};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">{{ loop.index }}</div>
+        <!-- Growth badge -->
+        {% if growth > 0 %}
+        <div style="position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:20px">↑ +{{ growth }}%</div>
+        {% endif %}
+        <!-- Status -->
+        <div style="position:absolute;bottom:8px;left:8px">
+          <span class="ts-badge ts-{{ p.trend_status }}">{{ p.trend_status }}</span>
+        </div>
+        <!-- Anomaly -->
+        {% if p.anomaly %}
+        <div style="position:absolute;bottom:8px;right:8px;background:rgba(239,68,68,.9);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">⚡ Spike</div>
+        {% endif %}
+      </div>
+      <!-- Info -->
+      <div style="padding:13px">
+        <div style="font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">{{ p.category }}</div>
+        <div style="font-size:13px;font-weight:700;color:#1A202C;line-height:1.4;margin-bottom:6px">{{ p.name[:40] }}{% if p.name|length > 40 %}…{% endif %}</div>
+        <div style="font-size:16px;font-weight:800;color:#1A202C;margin-bottom:9px">₹{{ "{:,}".format(p.price|int) }}</div>
+        <!-- Score bar -->
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#A0AEC0;margin-bottom:3px">
+          <span>Trend Score</span>
+          <span style="font-weight:700;color:#1A202C">{{ (p.trend_score|float)|round(3) }}</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill" style="width:{{ (p.trend_score|float*100)|int }}%;background:{% if p.trend_score|float>0.65 %}var(--primary){% elif p.trend_score|float>0.4 %}#22C55E{% else %}#3B82F6{% endif %}"></div>
+        </div>
+        <!-- Signals -->
+        <div style="display:flex;gap:6px;margin-top:9px;margin-bottom:11px;flex-wrap:wrap">
+          {% if p.view_velocity|float > 0 %}<span style="font-size:10px;color:#16A34A;font-weight:700;background:rgba(34,197,94,.1);padding:2px 7px;border-radius:10px">👁 +{{ (p.view_velocity|float*100)|round(0)|int }}%</span>{% endif %}
+          {% if p.search_momentum|float > 0 %}<span style="font-size:10px;color:#2563EB;font-weight:700;background:rgba(59,130,246,.1);padding:2px 7px;border-radius:10px">🔍 +{{ (p.search_momentum|float*100)|round(0)|int }}%</span>{% endif %}
+        </div>
+        <button onclick="event.stopPropagation();addToCart({{ p.id }},this)" class="btn btn-primary btn-sm" style="width:100%"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:80px 20px;color:#A0AEC0">
+    <div style="font-size:48px;margin-bottom:16px">🔮</div>
+    <div style="font-size:18px;font-weight:700;color:#4A5568;margin-bottom:8px">No trend data yet</div>
+    <div style="font-size:14px">Browse products to generate signals, then check back!</div>
+    <a href="/products" class="btn btn-primary" style="margin-top:20px;display:inline-flex">Browse Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-inner"><h1 class="page-h1">👤 My Profile</h1><p class="page-sub">Manage your account details</p></div></div>
+<div style="max-width:800px;margin:28px auto;padding:0 32px">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Personal Information</div><button class="btn btn-outline btn-sm" onclick="toggleEdit()">✏️ Edit</button></div>
+    <div class="card-body">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:90px;height:90px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#fff;margin:0 auto 12px">{{ session.get('name','U')[0] }}</div>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Photo upload coming soon!')">📷 Change Photo</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px" id="profileForm">
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" value="{{ session.get('name','') }}" disabled id="nameInput"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" value="{{ session.get('user','') }}" disabled id="emailInput"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" value="{{ user.get('phone','9876543210') }}" disabled id="phoneInput"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select class="form-select" disabled><option>Female</option><option>Male</option><option>Other</option></select></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Address</label><input class="form-input" value="{{ user.get('address','Pune, Maharashtra') }}" disabled id="addrInput"></div>
+      </div>
+      <button class="btn btn-primary" id="saveBtn" style="display:none" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+let editing = false;
+function toggleEdit() {
+  editing = !editing;
+  ['nameInput','emailInput','phoneInput','addrInput'].forEach(id => document.getElementById(id).disabled = !editing);
+  document.getElementById('saveBtn').style.display = editing ? 'block' : 'none';
+}
+function saveProfile() { showToast('Profile updated successfully! ✅'); toggleEdit(); }
+</script>
+{% endblock %}

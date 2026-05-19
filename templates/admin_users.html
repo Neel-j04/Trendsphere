@@ -1,0 +1,87 @@
+{% extends "admin_base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">All Users</span></div>
+    <h1>All Users</h1>
+    <p>Manage every account on TrendSphere.</p>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="g4 mb-20">
+  {% for label, val, col in [
+    ('Total Users', user_stats.total or 0, 'var(--glow)'),
+    ('Active', user_stats.active or 0, 'var(--green)'),
+    ('Blocked', user_stats.blocked or 0, 'var(--red)'),
+    ('New This Month', user_stats.new_month or 0, 'var(--blue)')
+  ] %}
+  <div class="card" style="padding:16px;border-top:2px solid {{ col }}">
+    <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px">{{ "{:,}".format(val) }}</div>
+    <div style="font-size:12px;color:var(--text3)">{{ label }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Filter -->
+<div class="card mb-20">
+  <div class="c-body">
+    <form method="GET" class="d-flex g8 ai-c" style="flex-wrap:wrap">
+      <div style="position:relative;flex:1;min-width:200px">
+        <i class="fa fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px"></i>
+        <input name="q" class="f-ctrl" style="padding-left:32px" placeholder="Search name or email…" value="{{ search }}">
+      </div>
+      <select name="role" class="f-ctrl f-select" style="width:150px">
+        <option value="">All Roles</option>
+        <option value="customer" {{ 'selected' if active_role=='customer' }}>Customer ({{ user_stats.customers or 0 }})</option>
+        <option value="seller"   {{ 'selected' if active_role=='seller' }}>Seller ({{ user_stats.sellers or 0 }})</option>
+        <option value="admin"    {{ 'selected' if active_role=='admin' }}>Admin ({{ user_stats.admins or 0 }})</option>
+      </select>
+      <button class="btn btn-outline btn-sm"><i class="fa fa-filter"></i> Filter</button>
+      {% if search or active_role %}<a href="/admin/users" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Clear</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="c-body-0">
+    <table class="tbl">
+      <thead><tr><th>User</th><th>Email</th><th>Role</th><th>City</th><th>Joined</th><th>Last Login</th><th>Orders</th><th>Spent</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="d-flex ai-c g10">
+              <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;background:{% if u.role=='admin' %}linear-gradient(135deg,var(--glow),var(--glow2)){% elif u.role=='seller' %}linear-gradient(135deg,var(--teal),#00b5a3){% else %}linear-gradient(135deg,var(--blue),#4285f4){% endif %}">{{ u.name[0]|upper }}</div>
+              <span style="font-weight:700;color:var(--text);font-size:13px">{{ u.name }}</span>
+            </div>
+          </td>
+          <td style="font-size:12.5px;color:var(--text3)">{{ u.email }}</td>
+          <td>
+            {% if u.role=='admin' %}<span class="badge bg-orange">🔑 Admin</span>
+            {% elif u.role=='seller' %}<span class="badge bg-teal">🏪 Seller</span>
+            {% else %}<span class="badge bg-blue">👤 Customer</span>{% endif %}
+          </td>
+          <td style="font-size:12px">{{ u.city or '—' }}</td>
+          <td style="font-size:11.5px;color:var(--text3)">{{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}</td>
+          <td style="font-size:11.5px;color:var(--text3)">{{ u.last_login.strftime('%d %b %Y') if u.last_login else 'Never' }}</td>
+          <td><strong>{{ u.order_count or 0 }}</strong></td>
+          <td style="font-size:12.5px;color:var(--green);font-weight:700">₹{{ "{:,.0f}".format(u.total_spent|float) }}</td>
+          <td>{% if u.is_active %}<span class="badge bg-green">Active</span>{% else %}<span class="badge bg-red">Blocked</span>{% endif %}</td>
+          <td>
+            <form method="POST" action="/admin/users/toggle/{{ u.id }}" style="display:inline">
+              <button class="btn btn-xs btn-icon {{ 'btn-danger' if u.is_active else 'btn-teal' }}" title="{{ 'Block' if u.is_active else 'Unblock' }}">
+                <i class="fa fa-{{ 'ban' if u.is_active else 'check' }}"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10"><div class="empty" style="padding:48px"><div class="ei">👥</div><p>No users found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

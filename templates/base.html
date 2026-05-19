@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}TrendSphere{% endblock %} — AI-Driven E-Commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --primary:#FF6F00; --primary-dark:#E65100; --primary-light:#FFA040; --primary-bg:#FFF8F0;
+  --navy:#131921; --navy2:#1A2433; --teal:#007185; --teal-dark:#005A6D;
+  --yellow:#FFD814; --yellow-dark:#F0C000; --green:#007600; --red:#C7303C;
+  --bg:#F5F5F5; --bg2:#FFFFFF; --card:#FFFFFF; --border:#E0E0E0; --border-light:#EEEEEE;
+  --text:#111111; --text2:#333333; --text3:#555555; --text-muted:#888888; --link:#007185;
+  --grad-primary:linear-gradient(135deg,#FF6F00,#FF9A3C);
+  --grad-navy:linear-gradient(180deg,#131921 0%,#1A2433 100%);
+  --grad-yellow:linear-gradient(180deg,#FFD814,#F5C400);
+  --grad-teal:linear-gradient(135deg,#007185,#009AB5);
+  --shadow-xs:0 1px 3px rgba(0,0,0,.08); --shadow-sm:0 2px 8px rgba(0,0,0,.10);
+  --shadow-md:0 4px 16px rgba(0,0,0,.12); --shadow-lg:0 8px 32px rgba(0,0,0,.14);
+  --shadow-hover:0 8px 24px rgba(255,111,0,.18);
+  --radius-xs:4px; --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px;
+  --font-display:'Plus Jakarta Sans',sans-serif; --font-body:'Inter',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.5}
+a{text-decoration:none;color:inherit}ul{list-style:none}
+button{cursor:pointer;border:none;outline:none;font-family:var(--font-body)}
+input,select,textarea{outline:none;font-family:var(--font-body)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f0f0f0}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+
+/* ── ANNOUNCEMENT BAR ── */
+.ann-bar{background:var(--navy);color:#fff;padding:8px 20px;text-align:center;font-size:13px;font-weight:500}
+.ann-bar strong{color:var(--yellow)} .ann-bar a{color:var(--yellow);font-weight:700;text-decoration:underline;margin-left:6px}
+
+/* ── HEADER ── */
+.header{position:sticky;top:0;z-index:1000;box-shadow:var(--shadow-md)}
+.nav-top{background:var(--navy);padding:12px 32px;display:flex;align-items:center;gap:20px}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:22px;font-weight:800;color:#fff;white-space:nowrap;flex-shrink:0;padding:6px 10px;border:2px solid transparent;border-radius:var(--radius-sm);transition:border-color .2s}
+.logo:hover{border-color:#fff}
+.logo-icon{width:32px;height:32px;background:var(--grad-primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo span{color:var(--yellow)}
+.search-bar{flex:1;display:flex;border-radius:var(--radius-sm);overflow:hidden;max-width:700px;box-shadow:0 0 0 2px transparent;transition:box-shadow .2s}
+.search-bar:focus-within{box-shadow:0 0 0 3px var(--yellow)}
+.search-category{background:#E8E8E8;color:var(--text);border:none;padding:0 10px;font-size:12px;cursor:pointer;border-right:1px solid #ccc;min-width:70px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
+.search-input{flex:1;background:#fff;border:none;padding:10px 14px;font-size:14px;color:var(--text)}
+.search-input::placeholder{color:#999}
+.search-btn{background:var(--yellow);border:none;padding:10px 18px;font-size:20px;color:var(--text);transition:background .2s;display:flex;align-items:center;justify-content:center}
+.search-btn:hover{background:var(--yellow-dark)}
+.nav-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
+.nav-btn{color:#fff;padding:6px 10px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:2px solid transparent;transition:border-color .2s;background:transparent;text-align:center;white-space:nowrap;line-height:1.3}
+.nav-btn:hover{border-color:#fff}
+.nav-btn .top{font-size:11px;color:rgba(255,255,255,.8);display:block}
+.nav-btn .bot{font-size:13.5px;font-weight:700;display:block}
+.nav-btn-yellow{background:var(--yellow);color:var(--navy)!important;font-weight:700;font-size:14px!important;border-radius:var(--radius-sm);padding:8px 14px}
+.nav-btn-yellow:hover{background:var(--yellow-dark)}
+.cart-nav{display:flex;align-items:center;gap:6px;color:#fff;font-weight:700;font-size:14px;padding:6px 10px;border:2px solid transparent;border-radius:var(--radius-sm);transition:border-color .2s;cursor:pointer}
+.cart-nav:hover{border-color:#fff}
+.cart-count{background:var(--yellow);color:var(--navy);font-size:14px;font-weight:800;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ── MEGA MENU ── */
+.nav-menu-bar{background:#232F3E;padding:0 32px;display:flex;align-items:center;gap:0;overflow-x:auto;scrollbar-width:none}
+.nav-menu-bar::-webkit-scrollbar{display:none}
+.nav-item{position:relative;padding:10px 14px;font-size:13.5px;font-weight:500;color:#fff;cursor:pointer;border:2px solid transparent;border-radius:var(--radius-xs);white-space:nowrap;display:flex;align-items:center;gap:5px;transition:border-color .15s;margin:3px 0}
+.nav-item:hover{border-color:#fff}
+.nav-item .arrow{font-size:9px;opacity:.7;transition:transform .2s}
+.nav-item:hover .arrow{transform:rotate(180deg)}
+.nav-item-deals{color:var(--yellow)!important;font-weight:700}
+.nav-item-deals:hover{border-color:var(--yellow)!important}
+.mega-dropdown{position:absolute;top:calc(100% + 5px);left:0;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;min-width:640px;box-shadow:var(--shadow-lg);opacity:0;visibility:hidden;transform:translateY(8px);transition:all .22s ease;z-index:999;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nav-item:hover .mega-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+.dropdown-col h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border-light)}
+.dropdown-col a{display:block;padding:5px 0;color:var(--text3);font-size:13px;transition:color .15s,padding-left .15s}
+.dropdown-col a:hover{color:var(--teal);padding-left:5px}
+.simple-dropdown{position:absolute;top:calc(100% + 5px);left:0;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 0;min-width:210px;box-shadow:var(--shadow-lg);opacity:0;visibility:hidden;transform:translateY(8px);transition:all .22s ease;z-index:999}
+.nav-item:hover .simple-dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+.simple-dropdown a{display:flex;align-items:center;gap:10px;padding:9px 16px;color:var(--text2);font-size:13.5px;transition:background .15s,color .15s}
+.simple-dropdown a:hover{background:var(--primary-bg);color:var(--primary)}
+
+/* ── PRODUCT CARD ── */
+.product-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);overflow:hidden;cursor:pointer;transition:all .25s;position:relative}
+.product-card:hover{border-color:var(--primary);box-shadow:var(--shadow-hover);transform:translateY(-4px)}
+.product-img{width:100%;height:170px;background:#F7F7F7;display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;overflow:hidden}
+.p-wishlist{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transition:opacity .2s;cursor:pointer;box-shadow:var(--shadow-xs)}
+.product-card:hover .p-wishlist{opacity:1}
+.p-badge{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px}
+.p-badge.new{background:var(--green)}.p-badge.top{background:var(--primary)}
+.product-info{padding:12px}
+.p-brand{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.5px}
+.p-name{font-size:13px;font-weight:500;margin:4px 0 6px;line-height:1.4;color:var(--text2)}
+.stars{color:#F0AC00;font-size:11px}.rcount{font-size:11px;color:var(--text-muted)}
+.p-rating{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.p-price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.p-now{font-size:16px;font-weight:800;color:var(--text)}
+.p-was{font-size:12px;color:var(--text-muted);text-decoration:line-through}
+.p-off{font-size:11px;font-weight:700;color:var(--red)}
+.p-add-btn{width:100%;margin-top:10px;background:var(--yellow);border:1px solid var(--yellow-dark);color:var(--navy);padding:7px;border-radius:var(--radius-xs);font-size:12px;font-weight:700;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.p-add-btn:hover{background:var(--yellow-dark)}
+
+/* ── SHARED ── */
+.section{padding:32px;max-width:1400px;margin:0 auto}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;border-bottom:1px solid var(--border-light);padding-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.3px}
+.section-title span{color:var(--primary)}
+.section-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+.view-all{font-size:13px;font-weight:600;color:var(--teal);padding:6px 14px;border:1.5px solid var(--teal);border-radius:20px;transition:all .2s;white-space:nowrap}
+.view-all:hover{background:var(--teal);color:#fff}
+.prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.prod-grid .product-card{width:auto}
+.prod-grid .product-img{height:190px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;transition:all .22s;border:none}
+.btn-primary{background:var(--grad-primary);color:#fff;box-shadow:0 4px 16px rgba(255,111,0,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,111,0,.4)}
+.btn-yellow{background:var(--yellow);color:var(--navy);border:1.5px solid var(--yellow-dark)}
+.btn-yellow:hover{background:var(--yellow-dark)}
+.btn-outline{background:transparent;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-outline:hover{background:var(--teal);color:#fff}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy2)}
+.btn-danger{background:#C7303C;color:#fff}
+.btn-danger:hover{background:#a62530}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-lg{padding:14px 32px;font-size:16px}
+.btn-full{width:100%}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s}
+.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,111,0,.12)}
+.form-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:#fff;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,111,0,.12)}
+
+/* ── BREADCRUMB ── */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);padding:14px 32px;max-width:1400px;margin:0 auto}
+.breadcrumb a{color:var(--link);transition:color .2s}
+.breadcrumb a:hover{color:var(--primary)}
+.breadcrumb .sep{opacity:.4}
+
+/* ── FLASH ── */
+.flash-messages{max-width:1400px;margin:12px auto 0;padding:0 32px}
+.flash{padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;background:#FFF3CD;border:1px solid #FFCA28;color:#7B5800;display:flex;align-items:center;gap:8px}
+
+/* ── SIDEBAR LAYOUT ── */
+.sidebar-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:32px}
+.sidebar{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px;height:fit-content;position:sticky;top:90px}
+.sidebar-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);font-size:14px;color:var(--text2);font-weight:500;transition:all .15s;margin-bottom:4px}
+.sidebar-link:hover{background:var(--primary-bg);color:var(--primary)}
+.sidebar-link.active{background:var(--primary-bg);color:var(--primary);font-weight:600}
+.sidebar-link i{width:18px;text-align:center;font-size:15px}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-green{background:#E8F5E9;color:#2E7D32}
+.badge-yellow{background:#FFF8E1;color:#F57F17}
+.badge-red{background:#FFEBEE;color:#C62828}
+.badge-blue{background:#E3F2FD;color:#1565C0}
+.badge-orange{background:#FFF3E0;color:#E65100}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:14px}
+.data-table th{padding:12px 16px;background:#F8F9FA;color:var(--text3);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:2px solid var(--border)}
+.data-table td{padding:14px 16px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+.data-table tr:hover td{background:#FAFAFA}
+.data-table tr:last-child td{border-bottom:none}
+
+/* ── STAT CARD ── */
+.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:22px;transition:all .2s}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.stat-val{font-family:var(--font-display);font-size:30px;font-weight:800;color:var(--navy)}
+.stat-label{font-size:13px;color:var(--text-muted);margin-top:4px}
+.stat-change{font-size:12px;font-weight:700;margin-top:6px}
+.stat-change.up{color:var(--green)}.stat-change.down{color:var(--red)}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);color:rgba(255,255,255,.8);padding:48px 32px 24px;margin-top:40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1400px;margin:0 auto}
+.footer-brand .logo{margin-bottom:14px;display:inline-flex}
+.footer-desc{font-size:13.5px;line-height:1.7;color:rgba(255,255,255,.6);max-width:280px}
+.footer-col h4{font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.footer-col a{display:block;padding:4px 0;font-size:13px;color:rgba(255,255,255,.6);transition:color .2s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{max-width:1400px;margin:32px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:rgba(255,255,255,.4)}
+.footer-bottom span strong{color:var(--yellow)}
+
+/* ── ADMIN SIDEBAR ── */
+.admin-layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 60px)}
+.admin-sidebar{background:var(--navy);padding:24px 0}
+.admin-sidebar-logo{padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.admin-sidebar-logo .logo{font-size:18px}
+.admin-nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;color:rgba(255,255,255,.7);font-weight:500;transition:all .15s;border-left:3px solid transparent}
+.admin-nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
+.admin-nav-link.active{background:rgba(255,111,0,.15);color:var(--primary);border-left-color:var(--primary)}
+.admin-nav-link i{width:18px;text-align:center}
+.admin-content{padding:28px;background:#F8F9FA;overflow-y:auto}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.admin-title{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--navy)}
+.admin-sub{font-size:13px;color:var(--text-muted);margin-top:4px}
+
+/* ── PAGE HEADER ── */
+.page-header{background:#fff;border-bottom:1px solid var(--border);padding:32px;margin-bottom:0}
+.page-header-inner{max-width:1400px;margin:0 auto}
+.page-h1{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--navy)}
+.page-sub{font-size:14px;color:var(--text-muted);margin-top:6px}
+
+/* ── CARD ── */
+.card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md)}
+.card-body{padding:24px}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy)}
+
+/* ── RATING STARS ── */
+{% for i in range(5) %}{% endfor %}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){.prod-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){
+  .nav-top{padding:10px 16px;gap:12px}
+  .deliver-to,.search-category{display:none}
+  .section{padding:20px 16px}
+  .prod-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .sidebar-layout{grid-template-columns:1fr}
+  .admin-layout{grid-template-columns:1fr}
+  .admin-sidebar{display:none}
+}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="ann-bar">
+  🚀 Free delivery on orders above ₹499! &nbsp;|&nbsp; 🤖 AI Trend Predictions Live &nbsp;|&nbsp; Use code <strong>TREND20</strong> for 20% off
+  <a href="/products?cat=Electronics">Shop Now →</a>
+</div>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-messages">
+{% for msg in messages %}<div class="flash"><i class="fa fa-info-circle"></i> {{ msg }}</div>{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<header class="header">
+  <div class="nav-top">
+    <a href="/" class="logo">
+      <div class="logo-icon">🔮</div>
+      Trend<span>Sphere</span>
+    </a>
+    <div class="deliver-to">
+      <span>Deliver to</span>
+      <strong>📍 Pune 411001</strong>
+    </div>
+    <form class="search-bar" action="/search" method="get">
+      <select class="search-category" name="cat">
+        <option value="">All</option>
+        <option>Electronics</option><option>Fashion</option>
+        <option>Home</option><option>Beauty</option>
+        <option>Books</option><option>Sports</option><option>Toys</option>
+      </select>
+      <input class="search-input" name="q" type="text" placeholder="Search products, brands and more…" value="{{ request.args.get('q','') }}">
+      <button class="search-btn" type="submit"><i class="fa fa-search"></i></button>
+    </form>
+    <div class="nav-right">
+      {% if session.get('user') %}
+        {% if session.get('role') == 'admin' %}
+        <a href="/admin/dashboard" class="nav-btn" style="color:var(--primary);border:1.5px solid var(--primary);border-radius:6px;padding:4px 10px">
+          <span class="top">🔐 Admin</span>
+          <span class="bot">Dashboard</span>
+        </a>
+        {% else %}
+        <a href="/account" class="nav-btn">
+          <span class="top">Hello, {{ session.get('name','').split()[0] }}</span>
+          <span class="bot">My Account ▾</span>
+        </a>
+        <a href="/orders" class="nav-btn">
+          <span class="top">Returns &</span>
+          <span class="bot">My Orders</span>
+        </a>
+        {% endif %}
+        <a href="/logout" class="nav-btn">
+          <span class="top">Sign</span>
+          <span class="bot">Out</span>
+        </a>
+      {% else %}
+        <a href="/login" class="nav-btn">
+          <span class="top">Hello, Sign in</span>
+          <span class="bot">Account & Lists ▾</span>
+        </a>
+        <a href="/signup" class="nav-btn nav-btn-yellow">Sign Up</a>
+      {% endif %}
+      <a href="/wishlist" class="nav-btn">
+        <span class="top">❤️</span>
+        <span class="bot">Wishlist</span>
+      </a>
+      <a href="/cart" class="cart-nav">
+        🛒 <div class="cart-count" id="cart-count">{{ get_cart_count() }}</div> Cart
+      </a>
+    </div>
+  </div>
+  <nav class="nav-menu-bar">
+    <div class="nav-item nav-all" onclick="window.location='/products'">
+      <i class="fa fa-bars"></i> All Categories
+      <div class="simple-dropdown">
+        <a href="/products?cat=Electronics"><span>📱</span> Electronics</a>
+        <a href="/products?cat=Fashion"><span>👗</span> Fashion</a>
+        <a href="/products?cat=Home"><span>🏠</span> Home & Kitchen</a>
+        <a href="/products?cat=Beauty"><span>💄</span> Beauty</a>
+        <a href="/products?cat=Books"><span>📚</span> Books</a>
+        <a href="/products?cat=Sports"><span>⚽</span> Sports</a>
+        <a href="/products?cat=Toys"><span>🧸</span> Toys</a>
+        <a href="/products?cat=Computers"><span>💻</span> Computers</a>
+      </div>
+    </div>
+    <a href="/products?cat=Electronics" class="nav-item">Electronics <span class="arrow">▼</span>
+      <div class="mega-dropdown">
+        <div class="dropdown-col"><h4>📱 Mobiles</h4><a href="#">Smartphones</a><a href="#">Feature Phones</a><a href="#">Refurbished</a></div>
+        <div class="dropdown-col"><h4>💻 Computers</h4><a href="#">Laptops</a><a href="#">Desktops</a><a href="#">Tablets</a></div>
+        <div class="dropdown-col"><h4>🎧 Audio</h4><a href="#">Headphones</a><a href="#">Speakers</a><a href="#">Earbuds</a></div>
+        <div class="dropdown-col"><h4>📷 Cameras</h4><a href="#">DSLR</a><a href="#">Mirrorless</a><a href="#">Action Cameras</a></div>
+      </div>
+    </a>
+    <a href="/products?cat=Fashion" class="nav-item">Fashion <span class="arrow">▼</span>
+      <div class="mega-dropdown">
+        <div class="dropdown-col"><h4>👗 Women</h4><a href="#">Dresses</a><a href="#">Tops</a><a href="#">Ethnic</a></div>
+        <div class="dropdown-col"><h4>👔 Men</h4><a href="#">T-Shirts</a><a href="#">Jeans</a><a href="#">Formals</a></div>
+        <div class="dropdown-col"><h4>👟 Footwear</h4><a href="#">Sneakers</a><a href="#">Heels</a><a href="#">Sandals</a></div>
+        <div class="dropdown-col"><h4>👜 Accessories</h4><a href="#">Bags</a><a href="#">Watches</a><a href="#">Sunglasses</a></div>
+      </div>
+    </a>
+    <a href="/products?cat=Home" class="nav-item">Home & Kitchen</a>
+    <a href="/products?cat=Beauty" class="nav-item">Beauty</a>
+    <a href="/products?cat=Books" class="nav-item">Books</a>
+    <a href="/products?cat=Sports" class="nav-item">Sports</a>
+    <a href="/products?cat=Toys" class="nav-item">Toys</a>
+    <a href="/products?badge=hot" class="nav-item nav-item-deals">🔥 Today's Deals</a>
+    
+  </nav>
+</header>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo" style="margin-bottom:14px">
+        <div class="logo-icon">🔮</div>
+        Trend<span>Sphere</span>
+      </div>
+      <p class="footer-desc">India's first AI-powered e-commerce platform predicting the next big product trend using LSTM + XGBoost + Prophet ensemble models.</p>
+      <div style="display:flex;gap:12px;margin-top:16px">
+        <a href="#" style="width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='rgba(255,255,255,.1)'"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" style="width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='rgba(255,255,255,.1)'"><i class="fab fa-instagram"></i></a>
+        <a href="#" style="width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='rgba(255,255,255,.1)'"><i class="fab fa-twitter"></i></a>
+        <a href="#" style="width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s" onmouseover="this.style.background='var(--primary)'" onmouseout="this.style.background='rgba(255,255,255,.1)'"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="/products">All Products</a><a href="/products?cat=Electronics">Electronics</a>
+      <a href="/products?cat=Fashion">Fashion</a><a href="/products?cat=Home">Home</a>
+      <a href="/products?cat=Beauty">Beauty</a><a href="/products?badge=hot">Today's Deals</a>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <a href="/account">My Account</a><a href="/orders">My Orders</a>
+      <a href="/wishlist">Wishlist</a><a href="/profile">Profile</a>
+      
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="/about">About Us</a><a href="/contact">Contact</a>
+      <a href="/faq">FAQ</a><a href="/admin/login">Admin Panel</a>
+      <a href="#">Privacy Policy</a><a href="#">Terms & Conditions</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 <strong>TrendSphere</strong>. All rights reserved. Built with 🔮 AI + ML.</span>
+    <span>Made with ❤️ in <strong>Pune, India</strong></span>
+  </div>
+</footer>
+
+<script>
+// Cart add with animation
+function addToCart(pid, btn) {
+  if(btn){ btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding…'; btn.disabled = true; }
+  fetch('/add-to-cart/' + pid, {method:'POST'})
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('cart-count').textContent = d.count;
+      if(btn){ btn.innerHTML = '<i class="fa fa-check"></i> Added!'; btn.style.background='#007600'; btn.style.color='#fff'; }
+      setTimeout(() => {
+        if(btn){ btn.innerHTML = '<i class="fa fa-cart-plus"></i> Add to Cart'; btn.style.background=''; btn.style.color=''; btn.disabled = false; }
+      }, 1500);
+    });
+}
+
+// Countdown timer
+function startCountdown(el, seconds) {
+  function update() {
+    let h = Math.floor(seconds/3600), m = Math.floor((seconds%3600)/60), s = seconds%60;
+    if(el) el.textContent = (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    if(seconds > 0) { seconds--; setTimeout(update, 1000); }
+  }
+  update();
+}
+document.querySelectorAll('.countdown-timer').forEach(el => startCountdown(el, parseInt(el.dataset.seconds || 14400)));
+
+// Toast notification
+function showToast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = 'toast-notif';
+  t.innerHTML = `<i class="fa fa-${type==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+  Object.assign(t.style, {position:'fixed',bottom:'24px',right:'24px',background:type==='success'?'#007600':'#C7303C',color:'#fff',padding:'12px 20px',borderRadius:'8px',fontWeight:'600',fontSize:'14px',zIndex:'9999',display:'flex',alignItems:'center',gap:'8px',boxShadow:'0 4px 16px rgba(0,0,0,.2)',animation:'slideInRight .3s ease'});
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.animation='slideOutRight .3s ease'; setTimeout(() => t.remove(), 300); }, 2500);
+}
+</script>
+<style>
+@keyframes slideInRight{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(100px);opacity:0}}
+</style>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

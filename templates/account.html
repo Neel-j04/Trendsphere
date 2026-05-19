@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}My Account{% endblock %}
+{% block extra_css %}
+<style>
+.acct-header{background:linear-gradient(135deg,#131921,#1A2433);padding:32px;color:#fff;margin-bottom:0}
+.acct-header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:24px}
+.acct-avatar{width:72px;height:72px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.3)}
+.acct-name{font-family:var(--font-display);font-size:24px;font-weight:800;color:#fff}
+.acct-email{font-size:14px;color:rgba(255,255,255,.6);margin-top:4px}
+.acct-since{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.acct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1400px;margin:28px auto;padding:0 32px}
+.acct-quick-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:24px;text-align:center;cursor:pointer;transition:all .22s}
+.acct-quick-card:hover{border-color:var(--primary);box-shadow:var(--shadow-hover);transform:translateY(-3px)}
+.acct-quick-icon{font-size:36px;margin-bottom:10px}
+.acct-quick-title{font-size:14px;font-weight:700;color:var(--navy)}
+.acct-quick-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.acct-orders{max-width:1400px;margin:0 auto;padding:0 32px 32px}
+.order-row{display:flex;align-items:center;gap:16px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.order-row:hover{border-color:var(--primary);box-shadow:var(--shadow-sm)}
+.order-icon{font-size:36px;flex-shrink:0}
+.order-info{flex:1}
+.order-id{font-size:14px;font-weight:700;color:var(--navy)}
+.order-prod{font-size:13px;color:var(--text3)}
+.order-date{font-size:12px;color:var(--text-muted);margin-top:2px}
+.order-amount{font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--navy);text-align:right}
+</style>
+{% endblock %}
+{% block content %}
+<div class="acct-header">
+  <div class="acct-header-inner">
+    <div class="acct-avatar">{{ session.get('name','U')[0] }}</div>
+    <div>
+      <div class="acct-name">{{ session.get('name', 'User') }}</div>
+      <div class="acct-email">{{ session.get('user', '') }}</div>
+      <div class="acct-since">Member since December 2024 · TrendSphere Prime</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px">
+      <a href="/profile" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3)">✏️ Edit Profile</a>
+      <a href="/logout" class="btn" style="background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.2)">Sign Out</a>
+    </div>
+  </div>
+</div>
+
+<div class="acct-grid">
+  {% for icon, title, sub, link in [('📦','My Orders','Track & manage orders','/orders'),('❤️','Wishlist','Saved items','/wishlist'),('💳','Payment Methods','Cards & UPI','/account'),('📍','Addresses','Delivery addresses','/profile')] %}
+  <a href="{{ link }}" class="acct-quick-card">
+    <div class="acct-quick-icon">{{ icon }}</div>
+    <div class="acct-quick-title">{{ title }}</div>
+    <div class="acct-quick-sub">{{ sub }}</div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="acct-orders">
+  <div class="section-header" style="margin-bottom:16px">
+    <div class="section-title">Recent <span>Orders</span></div>
+    <a href="/orders" class="view-all">View All →</a>
+  </div>
+  {% for order in orders %}
+  <a href="/order/{{ order.id }}" class="order-row">
+    <div class="order-icon">{{ order.emoji }}</div>
+    <div class="order-info">
+      <div class="order-id">{{ order.id }}</div>
+      <div class="order-prod">{{ order.product }}</div>
+      <div class="order-date">Ordered: {{ order.date }}</div>
+    </div>
+    <div>
+      <div class="order-amount">₹{{ "{:,}".format(order.amount) }}</div>
+      {% if order.status == 'Delivered' %}
+      <span class="badge badge-green" style="float:right;margin-top:4px">✅ {{ order.status }}</span>
+      {% elif order.status == 'Shipped' %}
+      <span class="badge badge-blue" style="float:right;margin-top:4px">🚚 {{ order.status }}</span>
+      {% else %}
+      <span class="badge badge-yellow" style="float:right;margin-top:4px">⏳ {{ order.status }}</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

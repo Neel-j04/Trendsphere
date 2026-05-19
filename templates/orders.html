@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-inner"><h1 class="page-h1">📦 My Orders</h1><p class="page-sub">Track and manage your orders</p></div></div>
+<div style="max-width:900px;margin:24px auto;padding:0 32px">
+  {% for order in orders %}
+  <a href="/order/{{ order.id }}" style="display:block;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px 24px;margin-bottom:14px;text-decoration:none;transition:all .2s;cursor:pointer" onmouseover="this.style.borderColor='var(--primary)';this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="font-size:40px">{{ order.emoji }}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:2px">Order ID: <strong style="color:var(--teal)">{{ order.id }}</strong></div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy)">{{ order.product }}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Qty: {{ order.qty }} · Ordered on {{ order.date }}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--navy)">₹{{ "{:,}".format(order.amount) }}</div>
+        {% if order.status == 'Delivered' %}<span class="badge badge-green" style="margin-top:6px;display:block;text-align:center">✅ Delivered</span>
+        {% elif order.status == 'Shipped' %}<span class="badge badge-blue" style="margin-top:6px;display:block;text-align:center">🚚 Shipped</span>
+        {% else %}<span class="badge badge-yellow" style="margin-top:6px;display:block;text-align:center">⏳ Processing</span>{% endif %}
+      </div>
+    </div>
+    {% if order.status != 'Delivered' %}
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-light);display:flex;gap:12px">
+      <div style="flex:1;height:6px;background:#E0E0E0;border-radius:3px;overflow:hidden;position:relative">
+        <div style="height:100%;background:var(--grad-primary);border-radius:3px;width:{% if order.status=='Shipped' %}66{% else %}33{% endif %}%;transition:width 1s"></div>
+      </div>
+      <span style="font-size:12px;color:var(--text-muted)">{% if order.status=='Shipped' %}66{% else %}33{% endif %}% complete</span>
+    </div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "admin_base.html" %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">Customers</span></div>
+    <h1>Customers</h1>
+    <p>{{ customers|length }} registered customer{{ 's' if customers|length != 1 }}</p>
+  </div>
+</div>
+
+<div class="card mb-20">
+  <div class="c-body">
+    <form method="GET" class="d-flex g8 ai-c">
+      <div style="position:relative;flex:1">
+        <i class="fa fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px"></i>
+        <input name="q" class="f-ctrl" style="padding-left:32px" placeholder="Search by name, email, or city…" value="{{ search }}">
+      </div>
+      <button class="btn btn-outline btn-sm"><i class="fa fa-search"></i> Search</button>
+      {% if search %}<a href="/admin/customers" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="c-body-0">
+    <table class="tbl">
+      <thead><tr><th>Customer</th><th>Email</th><th>City</th><th>Joined</th><th>Orders</th><th>Spent</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td>
+            <div class="d-flex ai-c g10">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--glow3);color:var(--glow);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">{{ c.name[0]|upper }}</div>
+              <span style="font-weight:700;color:var(--text)">{{ c.name }}</span>
+            </div>
+          </td>
+          <td style="font-size:12.5px;color:var(--text3)">{{ c.email }}</td>
+          <td style="font-size:12.5px">{{ c.city or '—' }}</td>
+          <td style="font-size:12px;color:var(--text3)">{{ c.created_at.strftime('%d %b %Y') if c.created_at else '—' }}</td>
+          <td><span class="badge bg-blue">{{ c.orders or 0 }}</span></td>
+          <td style="font-weight:700;color:var(--green)">₹{{ "{:,.0f}".format(c.total_spent|float) }}</td>
+          <td>
+            {% if c.is_active %}<span class="badge bg-green">Active</span>
+            {% else %}<span class="badge bg-red">Blocked</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex g8">
+              <a href="/admin/customers/{{ c.id }}" class="btn btn-outline btn-xs btn-icon" title="View"><i class="fa fa-eye"></i></a>
+              <form method="POST" action="/admin/customers/toggle/{{ c.id }}" style="display:inline">
+                <button class="btn btn-xs btn-icon {{ 'btn-danger' if c.is_active else 'btn-teal' }}" title="{{ 'Block' if c.is_active else 'Unblock' }}">
+                  <i class="fa fa-{{ 'ban' if c.is_active else 'check' }}"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><div class="empty" style="padding:48px"><div class="ei">👥</div><p>No customers found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

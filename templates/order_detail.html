@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order.id }}{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-inner"><h1 class="page-h1">Order Details</h1><p class="page-sub">{{ order.id }}</p></div></div>
+<div style="max-width:900px;margin:28px auto;padding:0 32px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">📦 Order Tracking</div></div>
+      <div class="card-body">
+        {% set steps = [('Order Placed','Order confirmed',True),('Processing','Being packed',order.status in ['Processing','Shipped','Delivered']),('Shipped','Out for delivery',order.status in ['Shipped','Delivered']),('Delivered','Delivered to doorstep',order.status=='Delivered')] %}
+        {% for step, desc, done in steps %}
+        <div style="display:flex;gap:16px;margin-bottom:20px;{% if loop.last %}margin-bottom:0{% endif %}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+            <div style="width:32px;height:32px;border-radius:50%;background:{% if done %}var(--green){% else %}var(--border){% endif %};display:flex;align-items:center;justify-content:center;color:{% if done %}#fff{% else %}var(--text-muted){% endif %};font-size:14px;flex-shrink:0">{% if done %}✓{% else %}○{% endif %}</div>
+            {% if not loop.last %}<div style="width:2px;flex:1;min-height:24px;background:{% if done %}var(--green){% else %}var(--border){% endif %};margin:4px 0"></div>{% endif %}
+          </div>
+          <div style="padding-top:4px">
+            <div style="font-size:14px;font-weight:700;color:{% if done %}var(--navy){% else %}var(--text-muted){% endif %}">{{ step }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ desc }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🛍️ Item Details</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:16px;align-items:center">
+          <div style="width:80px;height:80px;background:#F7F7F7;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:40px;border:1px solid var(--border)">{{ order.emoji }}</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:700;color:var(--navy)">{{ order.product }}</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Qty: {{ order.qty }}</div>
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--navy);margin-top:8px">₹{{ "{:,}".format(order.amount) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">📋 Order Info</div></div>
+      <div class="card-body" style="font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="color:var(--text-muted)">Order ID</span><strong>{{ order.id }}</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="color:var(--text-muted)">Date</span><strong>{{ order.date }}</strong></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="color:var(--text-muted)">Status</span>
+          {% if order.status=='Delivered' %}<span class="badge badge-green">✅ {{ order.status }}</span>
+          {% elif order.status=='Shipped' %}<span class="badge badge-blue">🚚 {{ order.status }}</span>
+          {% else %}<span class="badge badge-yellow">⏳ {{ order.status }}</span>{% endif %}
+        </div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted)">Payment</span><span class="badge badge-green">Paid</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">📍 Delivery Address</div></div>
+      <div class="card-body" style="font-size:13px;color:var(--text2);line-height:1.8">
+        <strong style="color:var(--navy)">{{ session.get('name','User') }}</strong><br>
+        Symbiosis Skills & Professional University<br>Pune, Maharashtra 411001<br>📞 9876543210
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% if order.status != 'Delivered' %}
+      <button class="btn btn-outline btn-full" onclick="showToast('Cancellation requested')">Cancel Order</button>
+      {% else %}
+      <button class="btn btn-outline btn-full" onclick="showToast('Return request initiated')">Return Item</button>
+      {% endif %}
+      <button class="btn btn-navy btn-full" onclick="showToast('Invoice downloaded 📄')"><i class="fa fa-download"></i> Download Invoice</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

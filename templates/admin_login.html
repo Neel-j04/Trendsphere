@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login — TrendSphere</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--glow:#FF6F00;--glow2:#FF9A3C;--ink:#0D1117;--ink2:#161B22;--ink3:#21262D;
+  --line:#30363D;--text:#E6EDF3;--text2:#8B949E;--r:10px;--font:'Plus Jakarta Sans',sans-serif}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--ink);color:var(--text);min-height:100vh;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  background-image:radial-gradient(ellipse at 20% 50%,rgba(255,111,0,.06) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 20%,rgba(0,229,204,.04) 0%,transparent 50%)}
+.box{width:100%;max-width:400px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--glow),var(--glow2));
+  border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;
+  margin:0 auto 14px;box-shadow:0 8px 32px rgba(255,111,0,.35)}
+.logo h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.4px}
+.logo h1 em{color:var(--glow);font-style:normal}
+.logo p{font-size:13px;color:var(--text2);margin-top:4px}
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:32px;
+  box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.f-group{margin-bottom:18px}
+.f-lbl{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text2);margin-bottom:7px}
+.f-ctrl{width:100%;background:var(--ink3);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:11px 14px;font-size:14px;color:var(--text);font-family:var(--font);transition:all .2s}
+.f-ctrl:focus{outline:none;border-color:var(--glow);box-shadow:0 0 0 3px rgba(255,111,0,.12)}
+.f-ctrl::placeholder{color:#484F58}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--glow),var(--glow2));
+  color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:800;
+  font-family:var(--font);cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 16px rgba(255,111,0,.4);letter-spacing:-.2px}
+.btn:hover{opacity:.92;transform:translateY(-1px)}
+.flash{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:var(--r);
+  font-size:13px;font-weight:600;margin-bottom:18px}
+.flash-danger{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);color:#F85149}
+.flash-success{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);color:#3FB950}
+.footer-note{text-align:center;font-size:12px;color:var(--text2);margin-top:20px}
+.footer-note a{color:var(--glow);font-weight:600}
+.input-wrap{position:relative}
+.input-wrap i{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#484F58;font-size:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">
+    <div class="logo-icon">🔮</div>
+    <h1>Trend<em>Sphere</em></h1>
+    <p>Admin Control Panel</p>
+  </div>
+  <div class="card">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">
+      <i class="fa fa-exclamation-circle"></i>{{ msg }}
+    </div>{% endfor %}{% endif %}{% endwith %}
+
+    <form method="POST">
+      <div class="f-group">
+        <label class="f-lbl">Email Address</label>
+        <input name="email" type="email" class="f-ctrl" placeholder="admin@trendsphere.com" required autocomplete="email">
+      </div>
+      <div class="f-group">
+        <label class="f-lbl">Password</label>
+        <div class="input-wrap">
+          <input name="password" type="password" class="f-ctrl" id="pwdInput" placeholder="Enter password" required style="padding-right:42px">
+          <i class="fa fa-eye" id="pwdToggle" onclick="togglePwd()"></i>
+        </div>
+      </div>
+      <button type="submit" class="btn"><i class="fa fa-sign-in-alt"></i> Sign In to Admin</button>
+    </form>
+  </div>
+  <div class="footer-note">
+    <a href="/"><i class="fa fa-arrow-left"></i> Back to Store</a>
+  </div>
+</div>
+<script>
+function togglePwd() {
+  const i = document.getElementById('pwdInput');
+  const t = document.getElementById('pwdToggle');
+  if(i.type==='password'){i.type='text';t.className='fa fa-eye-slash';}
+  else{i.type='password';t.className='fa fa-eye';}
+}
+</script>
+</body>
+</html>

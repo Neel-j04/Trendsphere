@@ -1,0 +1,202 @@
+{% extends "admin_base.html" %}
+{% block title %}AI Trend Predictions{% endblock %}
+{% block extra_css %}
+<style>
+.ts-viral{background:var(--red2);color:var(--red)}
+.ts-hot{background:var(--glow3);color:var(--glow)}
+.ts-rising{background:var(--green2);color:var(--green)}
+.ts-stable{background:var(--blue2);color:var(--blue)}
+.ts-cold{background:var(--purple2);color:var(--purple)}
+.score-bar{height:5px;background:var(--ink3);border-radius:3px;overflow:hidden;margin-top:5px}
+.score-fill{height:100%;border-radius:3px}
+.signal-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">AI Trend Predictions</span></div>
+    <h1>AI Trend Predictions</h1>
+    <p>XGBoost + Isolation Forest — real-time behavioral signal analysis.</p>
+  </div>
+  <div class="d-flex g8 ai-c">
+    <span class="badge {{ 'bg-green' if model_ready else 'bg-red' }}" style="font-size:12px;padding:6px 12px">
+      <i class="fa fa-circle" style="font-size:8px"></i>
+      {{ 'Model Active' if model_ready else 'Model Not Loaded — run python train.py' }}
+    </span>
+    <a href="/admin/trends" class="btn btn-primary btn-sm"><i class="fa fa-sync"></i> Refresh Predictions</a>
+  </div>
+</div>
+
+<!-- Model stats row -->
+<div class="g4 mb-20">
+  {% for label, val, col, icon in [
+    ('Products Scored', ml_results_count|default(0), 'var(--glow)', 'fa-robot'),
+    ('R² Score', model_metrics.get('r2', '—') if model_metrics else '—', 'var(--green)', 'fa-chart-line'),
+    ('RMSE', model_metrics.get('rmse', '—') if model_metrics else '—', 'var(--blue)', 'fa-bullseye'),
+    ('Algorithm', 'XGBoost', 'var(--purple)', 'fa-brain')
+  ] %}
+  <div class="card" style="padding:16px;border-top:2px solid {{ col }}">
+    <div class="d-flex ai-c g8 mb-8" style="margin-bottom:8px">
+      <i class="fa {{ icon }}" style="color:{{ col }};font-size:16px"></i>
+      <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px">{{ label }}</span>
+    </div>
+    <div style="font-size:20px;font-weight:800;color:var(--text)">{{ val }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Behavior signals (7-day summary) -->
+{% if behavior_summary %}
+<div class="card mb-20">
+  <div class="c-head"><div class="c-title"><i class="fa fa-signal"></i> Behavioral Signals — Last 7 Days</div></div>
+  <div class="c-body">
+    <div class="g4">
+      {% for icon, key, label, col in [
+        ('👁', 'total_views', 'Views', 'var(--glow)'),
+        ('🔍', 'total_searches', 'Searches', 'var(--blue)'),
+        ('❤️', 'total_wishlists', 'Wishlists', 'var(--red)'),
+        ('🛒', 'total_carts', 'Cart Adds', 'var(--green)')
+      ] %}
+      <div style="text-align:center;padding:12px;background:var(--ink3);border-radius:var(--r);border:1px solid var(--line2)">
+        <div style="font-size:26px;margin-bottom:6px">{{ icon }}</div>
+        <div style="font-size:20px;font-weight:800;color:{{ col }}">{{ "{:,}".format((behavior_summary[key] or 0)|int) }}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">{{ label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Category Trend Summary -->
+{% if category_trends %}
+<div class="g2 mb-20">
+  <div class="card">
+    <div class="c-head"><div class="c-title"><i class="fa fa-layer-group"></i> Category Trend Summary</div></div>
+    <div class="c-body">
+      <div class="ch200"><canvas id="catTrendChart"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="c-head"><div class="c-title"><i class="fa fa-sort-amount-down"></i> Category Rankings</div></div>
+    <div class="c-body-0">
+      {% for c in category_trends %}
+      <div style="padding:11px 18px;border-bottom:1px solid var(--line)">
+        <div class="d-flex ai-c g8" style="margin-bottom:5px">
+          <span style="font-size:13px;font-weight:700;color:var(--text);flex:1">{{ c.category }}</span>
+          <span style="font-size:12px;font-weight:700;color:{% if c.avg_score|float > 0.6 %}var(--glow){% elif c.avg_score|float > 0.4 %}var(--green){% else %}var(--text3){% endif %}">{{ (c.avg_score|float)|round(3) }}</span>
+          <span class="badge {% if c.avg_score|float > 0.6 %}bg-orange{% elif c.avg_score|float > 0.4 %}bg-green{% else %}bg-muted{% endif %}" style="font-size:9px">{{ c.product_count }} products</span>
+        </div>
+        <div class="score-bar"><div class="score-fill" style="width:{{ (c.avg_score|float*100)|int }}%;background:{% if c.avg_score|float > 0.6 %}var(--glow){% elif c.avg_score|float > 0.4 %}var(--green){% else %}var(--blue){% endif %}"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Product Predictions Table -->
+<div class="card">
+  <div class="c-head">
+    <div class="c-title"><i class="fa fa-fire"></i> Product Trend Scores</div>
+    <span style="font-size:12px;color:var(--text4)">{{ trend_products|length }} products ranked</span>
+  </div>
+  <div class="c-body-0" style="overflow-x:auto">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>#</th><th>Product</th><th>Category</th>
+          <th>Trend Score</th><th>Status</th><th>Forecast 7d</th>
+          <th>View Vel.</th><th>Search Mom.</th><th>Anomaly</th><th>Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in trend_products %}
+        <tr>
+          <td style="font-weight:800;color:{% if loop.index<=3 %}var(--glow){% else %}var(--text4){% endif %}">{{ loop.index }}</td>
+          <td>
+            <div class="d-flex ai-c g10">
+              <span style="font-size:20px">{{ p.emoji }}</span>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">{{ p.name }}</div>
+                <div style="font-size:11px;color:var(--text4)">{{ p.brand }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge bg-teal">{{ p.category }}</span></td>
+          <td>
+            <div class="d-flex ai-c g8">
+              <div style="width:64px">
+                <div class="score-bar" style="height:6px">
+                  <div class="score-fill" style="width:{{ (p.trend_score|float*100)|int }}%;background:{% if p.trend_score|float > 0.65 %}var(--glow){% elif p.trend_score|float > 0.4 %}var(--green){% else %}var(--blue){% endif %}"></div>
+                </div>
+              </div>
+              <strong style="font-size:12px;color:var(--text)">{{ (p.trend_score|float)|round(3) }}</strong>
+            </div>
+          </td>
+          <td><span class="badge ts-{{ p.trend_status }}">{{ p.trend_status|upper }}</span></td>
+          <td>
+            <span style="font-weight:700;font-size:13px;color:{% if p.forecast_7d|float > p.trend_score|float %}var(--green){% else %}var(--red){% endif %}">
+              {{ (p.forecast_7d|float)|round(3) }}
+              {% if p.forecast_7d|float > p.trend_score|float %}↑{% else %}↓{% endif %}
+            </span>
+          </td>
+          <td>
+            <span class="signal-chip {% if p.view_velocity|float > 0 %}bg-green{% else %}bg-red{% endif %}">
+              {{ '+' if p.view_velocity|float > 0 else '' }}{{ (p.view_velocity|float*100)|round(1) }}%
+            </span>
+          </td>
+          <td>
+            <span class="signal-chip {% if p.search_momentum|float > 0 %}bg-teal{% else %}bg-red{% endif %}">
+              {{ '+' if p.search_momentum|float > 0 else '' }}{{ (p.search_momentum|float*100)|round(1) }}%
+            </span>
+          </td>
+          <td>
+            {% if p.anomaly %}<span class="badge bg-orange">⚡ Spike</span>
+            {% else %}<span style="font-size:12px;color:var(--text4)">—</span>{% endif %}
+          </td>
+          <td>
+            <div class="d-flex ai-c g6">
+              <div class="score-bar" style="width:40px;height:4px">
+                <div class="score-fill" style="width:{{ (p.confidence|float*100)|int }}%;background:var(--teal)"></div>
+              </div>
+              <span style="font-size:11.5px;color:var(--text3)">{{ (p.confidence|float*100)|round(0)|int }}%</span>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10">
+          <div class="empty" style="padding:48px">
+            <div class="ei">🤖</div>
+            {% if not model_ready %}
+            <p>Model not loaded. Run <code style="background:var(--ink3);padding:2px 6px;border-radius:4px;color:var(--glow)">python train.py</code> then refresh.</p>
+            {% else %}
+            <p>No predictions yet. Browse some products to generate signals, then refresh.</p>
+            {% endif %}
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const catNames = {{ category_trends|map(attribute='category')|list|tojson if category_trends else []|tojson }};
+const catScores = {{ category_trends|map(attribute='avg_score')|map('float')|list|tojson if category_trends else []|tojson }};
+if(catNames.length) {
+  new Chart(document.getElementById('catTrendChart'), {
+    type:'bar',
+    data:{labels:catNames, datasets:[{label:'Avg Trend Score',data:catScores,
+      backgroundColor:catScores.map(v=>v>0.6?'rgba(255,111,0,.7)':v>0.4?'rgba(63,185,80,.7)':'rgba(88,166,255,.5)'),
+      borderRadius:5,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'},max:1,ticks:{callback:v=>v.toFixed(1)}},
+              y:{grid:{display:false}}}}
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart{% endblock %}
+{% block content %}
+<div class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">🛒 Your <span>Cart</span></div>
+      <div class="section-sub">{{ cart|length }} item(s) in your cart</div>
+    </div>
+  </div>
+
+  {% if cart %}
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:24px">
+    <!-- Cart Items -->
+    <div class="card">
+      <div class="card-body" style="padding:0">
+        {% for item in cart %}
+        <div style="display:flex;gap:16px;padding:20px;border-bottom:1px solid var(--border-light);position:relative">
+          <div style="width:100px;height:100px;background:#F8F9FA;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:48px">
+            {{ item.emoji|default('📦') }}
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:start">
+              <div>
+                <div style="font-size:13px;color:var(--teal);font-weight:600;text-transform:uppercase;letter-spacing:0.5px">{{ item.brand }}</div>
+                <div style="font-size:15px;font-weight:700;color:var(--navy);margin:4px 0">{{ item.name }}</div>
+                <div class="p-rating" style="margin:6px 0">
+                  <span class="stars">{% for i in range(5) %}{% if item.avg_rating and i < item.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+                  <span class="rcount">({{ "{:,}".format(item.review_count|default(0)) }})</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div class="cart-price">₹{{ "{:,}".format(item.price * item.qty) }}</div>
+                {% if item.was_price %}
+                <div class="cart-price-was">₹{{ "{:,}".format(item.was_price * item.qty) }}</div>
+                <div class="cart-save">Save ₹{{ "{:,}".format((item.was_price - item.price) * item.qty) }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:12px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="qty-btn" onclick="updateCart({{ item.id }}, {{ item.qty - 1 }})">−</button>
+                <span style="min-width:30px;text-align:center;font-weight:600">{{ item.qty }}</span>
+                <button class="qty-btn" onclick="updateCart({{ item.id }}, {{ item.qty + 1 }})">+</button>
+              </div>
+              <button class="btn-remove" onclick="removeFromCart({{ item.id }})">
+                <i class="fa fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div>
+      <div class="card" style="position:sticky;top:90px">
+        <div class="card-header">
+          <div class="card-title">💰 Order Summary</div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <span>Subtotal ({{ cart|length }} items)</span>
+            <span class="cart-price">₹{{ "{:,}".format(subtotal) }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <span>Shipping</span>
+            <span class="cart-price">{% if subtotal > 499 %}FREE{% else %}₹40{% endif %}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border-light)">
+            <span>Tax (GST)</span>
+            <span class="cart-price">₹{{ "{:,}".format((subtotal * 0.18)|int) }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+            <span style="font-size:18px;font-weight:800;color:var(--navy)">Total</span>
+            <span style="font-size:22px;font-weight:800;color:var(--primary)">₹{{ "{:,}".format(subtotal + (0 if subtotal > 499 else 40) + (subtotal * 0.18)|int) }}</span>
+          </div>
+          <a href="/checkout" class="btn btn-primary btn-full" style="padding:14px;font-size:16px">
+            Proceed to Checkout →
+          </a>
+          <div style="margin-top:16px;text-align:center;font-size:12px;color:var(--text-muted)">
+            <i class="fa fa-lock"></i> Secure payment • 30-day returns
+          </div>
+        </div>
+      </div>
+      
+      <!-- Continue Shopping -->
+      <div style="margin-top:16px;text-align:center">
+        <a href="/products" style="color:var(--teal);text-decoration:none;font-size:14px;font-weight:600">
+          ← Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Empty Cart -->
+  <div class="empty-state">
+    <span style="font-size:80px">🛒</span>
+    <h3>Your cart is empty</h3>
+    <p>Looks like you haven't added any items to your cart yet.</p>
+    <a href="/products" class="btn btn-primary btn-lg">Start Shopping →</a>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.cart-price{font-size:16px;font-weight:700;color:var(--navy)}
+.cart-price-was{font-size:13px;color:var(--text-muted);text-decoration:line-through}
+.cart-save{font-size:12px;color:var(--green);font-weight:600}
+.qty-btn{width:28px;height:28px;border:1.5px solid var(--border);border-radius:var(--radius-xs);background:#fff;font-size:16px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.qty-btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn-remove{background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:4px 8px}
+.btn-remove:hover{text-decoration:underline}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateCart(productId, newQty) {
+  if (newQty < 1) {
+    removeFromCart(productId);
+    return;
+  }
+  fetch(`/update-cart/${productId}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: `qty=${newQty}`
+  }).then(() => window.location.reload());
+}
+
+function removeFromCart(productId) {
+  if (confirm('Remove this item from cart?')) {
+    fetch(`/remove-from-cart/${productId}`, {method: 'POST'})
+      .then(() => window.location.reload());
+  }
+}
+</script>
+{% endblock %}

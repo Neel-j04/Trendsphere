@@ -1,0 +1,82 @@
+{% extends "admin_base.html" %}
+{% block title %}Customer: {{ customer.name }}{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><a href="/admin/customers" style="color:var(--text3)">Customers</a><span class="c-m">/</span><span class="cur">{{ customer.name }}</span></div>
+    <h1>{{ customer.name }}</h1>
+    <p>Customer profile and order history.</p>
+  </div>
+  <form method="POST" action="/admin/customers/toggle/{{ customer.id }}">
+    <button class="btn {{ 'btn-danger' if customer.is_active else 'btn-teal' }} btn-sm">
+      <i class="fa fa-{{ 'ban' if customer.is_active else 'check' }}"></i>
+      {{ 'Block Customer' if customer.is_active else 'Unblock Customer' }}
+    </button>
+  </form>
+</div>
+
+<div class="g2" style="align-items:start">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-user"></i> Profile</div></div>
+      <div class="c-body">
+        <div class="d-flex ai-c g12" style="margin-bottom:16px">
+          <div style="width:54px;height:54px;border-radius:50%;background:var(--glow3);color:var(--glow);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0">{{ customer.name[0]|upper }}</div>
+          <div>
+            <div style="font-size:17px;font-weight:800;color:var(--text)">{{ customer.name }}</div>
+            <div style="font-size:13px;color:var(--text4)">Customer since {{ customer.created_at.strftime('%B %Y') if customer.created_at else '—' }}</div>
+          </div>
+          {% if customer.is_active %}<span class="badge bg-green ml-a">Active</span>{% else %}<span class="badge bg-red ml-a">Blocked</span>{% endif %}
+        </div>
+        {% for label, val in [
+          ('Email', customer.email),
+          ('Phone', customer.phone or '—'),
+          ('City', customer.city or '—'),
+          ('Last Login', customer.last_login.strftime('%d %b %Y') if customer.last_login else 'Never')
+        ] %}
+        <div class="d-flex ai-c" style="padding:9px 0;border-bottom:1px solid var(--line)">
+          <span style="font-size:12px;color:var(--text4);width:90px">{{ label }}</span>
+          <span style="font-size:13.5px;font-weight:600;color:var(--text)">{{ val }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-chart-bar"></i> Top Pages Visited</div></div>
+      <div class="c-body-0">
+        {% for v in visits %}
+        <div style="padding:10px 18px;border-bottom:1px solid var(--line)" class="d-flex ai-c g8">
+          <span style="font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.path }}</span>
+          <span class="badge bg-muted">{{ v.hits }}x</span>
+        </div>
+        {% else %}
+        <div class="empty" style="padding:24px"><div class="ei">🔍</div><p>No visit history</p></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="c-head"><div class="c-title"><i class="fa fa-shopping-bag"></i> Order History</div></div>
+    <div class="c-body-0">
+      {% for o in orders %}
+      <div style="padding:12px 18px;border-bottom:1px solid var(--line)">
+        <div class="d-flex ai-c g12">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;color:var(--glow);font-size:13px">{{ o.id }}</div>
+            <div style="font-size:11px;color:var(--text4)">{{ o.date }} · {{ o.products[:40] if o.products else '—' }}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-weight:700;color:var(--text)">₹{{ "{:,}".format(o.amount|int) }}</div>
+            <span class="badge {% if o.status=='Delivered' %}bg-green{% elif o.status=='Cancelled' %}bg-red{% else %}bg-blue{% endif %}" style="font-size:9px">{{ o.status }}</span>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:32px"><div class="ei">📦</div><p>No orders yet</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "admin_base.html" %}
+{% block title %}Order {{ order.order_code }}{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><a href="/admin/orders" style="color:var(--text3)">Orders</a><span class="c-m">/</span><span class="cur">{{ order.order_code }}</span></div>
+    <h1>{{ order.order_code }}</h1>
+  </div>
+  <span class="badge {% if order.status=='Delivered' %}bg-green{% elif order.status=='Cancelled' %}bg-red{% elif order.status=='Dispatched' %}bg-teal{% else %}bg-blue{% endif %}" style="font-size:13px;padding:6px 14px">{{ order.status }}</span>
+</div>
+
+<div class="g2" style="align-items:start">
+  <!-- Order items -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-list"></i> Order Items</div></div>
+      <div class="c-body-0">
+        <table class="tbl">
+          <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td><div class="d-flex ai-c g8"><span style="font-size:20px">{{ item.emoji }}</span><span style="font-weight:600;color:var(--text)">{{ item.name }}</span></div></td>
+              <td style="font-weight:600">{{ item.qty }}</td>
+              <td>₹{{ "{:,}".format(item.unit_price|int) }}</td>
+              <td style="font-weight:700;color:var(--green)">₹{{ "{:,}".format(item.subtotal|int) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div style="padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end">
+          <div style="font-size:16px;font-weight:800;color:var(--glow)">Total: ₹{{ "{:,}".format(order.total_amount|int) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Status -->
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-edit"></i> Update Status</div></div>
+      <div class="c-body">
+        <form method="POST" action="/admin/orders/update-status/{{ order.id }}" class="d-flex g8 ai-c">
+          <select name="status" class="f-ctrl f-select" style="flex:1">
+            {% for s in ['Pending','Processing','Dispatched','Delivered','Cancelled','Refunded'] %}
+            <option value="{{ s }}" {{ 'selected' if order.status == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary"><i class="fa fa-save"></i> Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer + order info -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-user"></i> Customer</div></div>
+      <div class="c-body">
+        <div class="d-flex ai-c g12" style="margin-bottom:14px">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--glow3);color:var(--glow);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0">{{ order.customer[0]|upper }}</div>
+          <div><div style="font-weight:700;color:var(--text)">{{ order.customer }}</div><div style="font-size:12px;color:var(--text4)">{{ order.customer_email }}</div></div>
+        </div>
+        {% if order.phone %}<div style="font-size:13px;color:var(--text3)"><i class="fa fa-phone" style="width:16px"></i> {{ order.phone }}</div>{% endif %}
+        {% if order.shipping_address %}<div style="margin-top:10px;font-size:13px;color:var(--text2);background:var(--ink3);padding:10px;border-radius:var(--r-sm)">📍 {{ order.shipping_address }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="c-head"><div class="c-title"><i class="fa fa-info-circle"></i> Order Info</div></div>
+      <div class="c-body">
+        {% for label, val in [
+          ('Order Code', order.order_code),
+          ('Payment', order.payment_method or 'COD'),
+          ('Placed', order.placed_at.strftime('%d %b %Y %H:%M') if order.placed_at else '—'),
+          ('Total', '₹' ~ "{:,}".format(order.total_amount|int))
+        ] %}
+        <div class="d-flex ai-c" style="padding:8px 0;border-bottom:1px solid var(--line)">
+          <span style="font-size:12px;color:var(--text4);width:100px">{{ label }}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text)">{{ val }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

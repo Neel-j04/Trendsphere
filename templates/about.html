@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}About Us{% endblock %}
+{% block extra_css %}
+<style>
+.about-hero{background:linear-gradient(135deg,#131921 0%,#1A2433 60%,#0D3A45 100%);padding:72px 32px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.about-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.about-hero h1{font-family:var(--font-display);font-size:clamp(32px,5vw,60px);font-weight:800;line-height:1.1;margin-bottom:16px;position:relative}
+.about-hero p{font-size:18px;color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 32px;line-height:1.8;position:relative}
+.about-stats{display:flex;justify-content:center;gap:60px;position:relative}
+.about-stat-val{font-family:var(--font-display);font-size:38px;font-weight:800;color:var(--yellow)}
+.about-stat-lbl{font-size:13px;color:rgba(255,255,255,.5);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.team-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:32px 24px;text-align:center;transition:all .25s}
+.team-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+.team-avatar{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff}
+.team-name{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.team-role{font-size:13px;color:var(--primary);font-weight:600;margin-bottom:10px}
+.team-bio{font-size:13px;color:var(--text3);line-height:1.7}
+.tech-stack{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tech-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;transition:all .2s}
+.tech-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.tech-icon{font-size:32px;margin-bottom:8px}
+.tech-name{font-size:13px;font-weight:700;color:var(--navy)}
+.tech-desc{font-size:11px;color:var(--text-muted);margin-top:4px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="about-hero">
+  <h1>🔮 About <span style="color:var(--yellow)">TrendSphere</span></h1>
+  <p>India's first AI-powered e-commerce platform that predicts what will be trending before it trends — powered by cutting-edge machine learning.</p>
+  <div class="about-stats">
+    {% for val, lbl in [('10M+','Data Points'),('94.3%','Prediction Accuracy'),('50K+','Products'),('500K+','Happy Customers')] %}
+    <div>
+      <div class="about-stat-val">{{ val }}</div>
+      <div class="about-stat-lbl">{{ lbl }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<section class="section">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:48px">
+    <div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--primary);margin-bottom:10px">Our Mission</div>
+      <h2 style="font-family:var(--font-display);font-size:34px;font-weight:800;color:var(--navy);margin-bottom:16px;line-height:1.2">Shop tomorrow's bestsellers <em>today</em></h2>
+      <p style="font-size:15px;color:var(--text3);line-height:1.9;margin-bottom:16px">TrendSphere was built as an M.Sc. Data Science capstone project at Symbiosis Skills & Professional University, Pune. Our ML pipeline uses three powerful models working in ensemble to forecast product demand with industry-beating accuracy.</p>
+      <p style="font-size:15px;color:var(--text3);line-height:1.9">We analyze Amazon India sales data, customer behavior, seasonal patterns, and social signals to predict what's going to be the next big trend — 30 days before it happens.</p>
+    </div>
+    <div style="background:linear-gradient(135deg,#FFF8F0,#FFE8CC);border-radius:var(--radius-xl);padding:36px">
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:20px;text-transform:uppercase;letter-spacing:1px">🤖 Our ML Stack</div>
+      {% for icon, name, desc in [('🧠','LSTM Neural Networks','Long Short-Term Memory for sequential time-series demand forecasting'),('⚡','XGBoost','Gradient boosting for product category trend classification'),('📈','Facebook Prophet','Time-series decomposition for seasonal demand prediction')] %}
+      <div style="display:flex;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid rgba(255,111,0,.15)">
+        <span style="font-size:28px;flex-shrink:0">{{ icon }}</span>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy)">{{ name }}</div>
+          <div style="font-size:12.5px;color:var(--text3);margin-top:3px;line-height:1.6">{{ desc }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section">
+    <div class="section-header"><div><div class="section-title">👥 Our <span>Team</span></div><div class="section-sub">The brilliant minds behind TrendSphere</div></div></div>
+    <div class="team-grid">
+      {% for name, role, emoji, color, bio in [
+        ('Triveni Sharma','ML Engineer & Founder','👩‍💻','var(--grad-primary)','M.Sc. Data Science, SSPU Pune. Built the LSTM + XGBoost + Prophet ensemble model. Python, SQL, Flask, TensorFlow.'),
+        ('Shubham Patil','Full-Stack Developer','👨‍💻','var(--grad-teal)','Co-founder. Built the Flask REST API, PostgreSQL backend, and JWT authentication system. React & Python expert.'),
+        ('Prof. R. Desai','Project Mentor','👨‍🏫','linear-gradient(135deg,#4CAF50,#2E7D32)','Data Science department head at SSPU. Guided the ML model architecture and evaluation framework.')
+      ] %}
+      <div class="team-card">
+        <div class="team-avatar" style="background:{{ color }}">{{ emoji }}</div>
+        <div class="team-name">{{ name }}</div>
+        <div class="team-role">{{ role }}</div>
+        <div class="team-bio">{{ bio }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header"><div><div class="section-title">🛠️ <span>Tech Stack</span></div><div class="section-sub">Built with modern, production-grade tools</div></div></div>
+  <div class="tech-stack">
+    {% for icon, name, desc in [('🐍','Python 3.11','Core backend & ML'),('🌶️','Flask','REST API framework'),('🐘','PostgreSQL','Database'),('🤖','TensorFlow','Deep learning'),('📊','XGBoost','Gradient boosting'),('📈','Prophet','Time forecasting'),('⚛️','React','Frontend UI'),('☁️','AWS','Deployment')] %}
+    <div class="tech-card">
+      <div class="tech-icon">{{ icon }}</div>
+      <div class="tech-name">{{ name }}</div>
+      <div class="tech-desc">{{ desc }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

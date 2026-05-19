@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Wishlist{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-inner"><h1 class="page-h1">❤️ My Wishlist</h1><p class="page-sub">{{ items|length }} items saved</p></div></div>
+<div class="section">
+  <div class="prod-grid">
+    {% for p in items %}
+    <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+      <div class="product-img">{{ p.emoji }}
+        <div class="p-wishlist" onclick="event.stopPropagation();showToast('Removed from wishlist')" style="opacity:1;color:var(--red)">♥</div>
+        {% if p.badge %}<div class="p-badge {{ p.badge }}">{% if p.badge=='hot' %}🔥 HOT{% elif p.badge=='new' %}NEW{% else %}TOP{% endif %}</div>{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="p-brand">{{ p.brand }}</div>
+        <div class="p-name">{{ p.name }}</div>
+        <div class="p-price"><span class="p-now">₹{{ "{:,}".format(p.price) }}</span><span class="p-was">₹{{ "{:,}".format(p.was) }}</span></div>
+        <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)"><i class="fa fa-cart-plus"></i> Move to Cart</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

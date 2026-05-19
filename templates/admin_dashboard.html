@@ -1,0 +1,229 @@
+{% extends "admin_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">Dashboard</span></div>
+    <h1>Overview</h1>
+    <p>Welcome back, <strong>{{ session.get('name','Admin') }}</strong> — here's what's happening on TrendSphere.</p>
+  </div>
+  <div class="d-flex g8 ai-c">
+    <a href="/admin/products/add" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Product</a>
+    <a href="/admin/trends" class="btn btn-teal btn-sm"><i class="fa fa-robot"></i> Run AI</a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi" style="--ac:var(--glow);--acl:var(--glow3)">
+    <div class="kpi-ico">💰</div>
+    <div class="kpi-val">₹{{ "{:,.0f}".format((stats.revenue or 0) / 1000) }}K</div>
+    <div class="kpi-lbl">Total Revenue</div>
+    <span class="kpi-ch up"><i class="fa fa-arrow-up"></i> All time</span>
+    <div class="kpi-bg">💰</div>
+  </div>
+  <div class="kpi" style="--ac:var(--blue);--acl:var(--blue2)">
+    <div class="kpi-ico" style="background:var(--blue2)">📦</div>
+    <div class="kpi-val">{{ "{:,}".format(stats.total_orders or 0) }}</div>
+    <div class="kpi-lbl">Total Orders</div>
+    <span class="kpi-ch neu"><i class="fa fa-clock"></i> {{ stats.pending_orders or 0 }} pending</span>
+    <div class="kpi-bg">📦</div>
+  </div>
+  <div class="kpi" style="--ac:var(--teal);--acl:var(--teal2)">
+    <div class="kpi-ico" style="background:var(--teal2)">👥</div>
+    <div class="kpi-val">{{ "{:,}".format(stats.customers or 0) }}</div>
+    <div class="kpi-lbl">Customers</div>
+    <span class="kpi-ch up"><i class="fa fa-user-plus"></i> Active</span>
+    <div class="kpi-bg">👥</div>
+  </div>
+  <div class="kpi" style="--ac:var(--purple);--acl:var(--purple2)">
+    <div class="kpi-ico" style="background:var(--purple2)">🌐</div>
+    <div class="kpi-val">{{ "{:,}".format(stats.visits_today or 0) }}</div>
+    <div class="kpi-lbl">Visits Today</div>
+    <span class="kpi-ch neu"><i class="fa fa-desktop"></i> {{ stats.sessions_today or 0 }} sessions</span>
+    <div class="kpi-bg">🌐</div>
+  </div>
+</div>
+
+<!-- Revenue Chart + Top Products -->
+<div class="g2 mb-20">
+  <div class="card span2">
+    <div class="c-head">
+      <div class="c-title"><i class="fa fa-chart-area"></i> Revenue & Orders — Last 7 Days</div>
+      <div class="d-flex g8 ai-c">
+        <div class="d-flex g12 ai-c" style="font-size:11.5px;color:var(--text3)">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--glow);margin-right:4px"></span>Revenue</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--blue);margin-right:4px"></span>Orders</span>
+        </div>
+        <select class="f-ctrl f-select" style="width:auto;padding:5px 28px 5px 10px;font-size:12px">
+          <option>7 Days</option><option>30 Days</option>
+        </select>
+      </div>
+    </div>
+    <div class="c-body"><div class="ch280"><canvas id="revenueChart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- Category Donut + Trending + Stats row -->
+<div class="g3 mb-20">
+  <div class="card">
+    <div class="c-head"><div class="c-title"><i class="fa fa-chart-pie"></i> Category Revenue</div></div>
+    <div class="c-body">
+      <div class="ch200"><canvas id="catChart"></canvas></div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        {% set cat_colors = ['var(--glow)','var(--blue)','var(--yellow)','var(--red)','var(--purple)'] %}
+        {% for c in cat_split[:5] %}
+        {% set total_rev = cat_split|map(attribute='revenue')|map('float')|sum %}
+        {% set pct = ((c.revenue|float / total_rev * 100)|round(1)) if total_rev > 0 else 0 %}
+        <div>
+          <div class="d-flex ai-c g8 mb-2" style="margin-bottom:4px">
+            <div style="width:8px;height:8px;border-radius:50%;background:{{ cat_colors[loop.index0] }};flex-shrink:0"></div>
+            <span style="font-size:12px;color:var(--text2);flex:1">{{ c.category[:18] }}</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text)">{{ pct }}%</span>
+          </div>
+          <div class="pbar"><div class="pbar-fill" style="width:{{ pct }}%;background:{{ cat_colors[loop.index0] }}"></div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="c-head">
+      <div class="c-title"><i class="fa fa-robot"></i> AI Trending</div>
+      <a href="/admin/trends" class="btn btn-teal btn-xs">Refresh</a>
+    </div>
+    <div class="c-body-0">
+      {% for item in trend_data.trending %}
+      <div class="d-flex ai-c g12" style="padding:11px 18px;border-bottom:1px solid var(--line)">
+        <div style="width:24px;height:24px;border-radius:50%;background:{% if loop.index<=2 %}var(--glow3){% else %}var(--ink3){% endif %};
+             display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;
+             color:{% if loop.index<=2 %}var(--glow){% else %}var(--text3){% endif %};flex-shrink:0">{{ loop.index }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ item.name[:24] }}</div>
+          <div style="font-size:11px;color:var(--text4)">{{ item.category }}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:800;color:var(--green)">{{ item.change }}</div>
+          <div style="font-size:10px;color:var(--text4)">{{ item.forecast }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:24px"><div class="ei">🤖</div><p>No predictions yet</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="c-head"><div class="c-title"><i class="fa fa-chart-bar"></i> Top Pages (7d)</div></div>
+    <div class="c-body-0">
+      {% for p in top_pages %}
+      <div style="padding:10px 18px;border-bottom:1px solid var(--line)">
+        <div class="d-flex ai-c g8" style="margin-bottom:5px">
+          <span style="font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.path }}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text);flex-shrink:0">{{ "{:,}".format(p.hits) }}</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill" style="background:var(--teal);width:{{ [p.hits * 100 // ([top_pages[0].hits, 1]|max), 100]|min }}%"></div></div>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:24px"><div class="ei">📊</div><p>No traffic yet</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders + Top Products -->
+<div class="g2">
+  <div class="card">
+    <div class="c-head">
+      <div class="c-title"><i class="fa fa-shopping-bag"></i> Recent Orders</div>
+      <a href="/admin/orders" class="btn btn-outline btn-xs">View All →</a>
+    </div>
+    <div class="c-body-0">
+      {% for o in recent_orders %}
+      <div class="d-flex ai-c g12" style="padding:12px 18px;border-bottom:1px solid var(--line)">
+        <div style="width:34px;height:34px;border-radius:var(--r-sm);flex-shrink:0;
+             background:{% if o.status=='Delivered' %}var(--green2){% elif o.status=='Cancelled' %}var(--red2){% else %}var(--blue2){% endif %};
+             display:flex;align-items:center;justify-content:center;font-size:14px">
+          {% if o.status=='Delivered' %}✅{% elif o.status=='Cancelled' %}❌{% else %}📦{% endif %}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">{{ o.id }}</div>
+          <div style="font-size:11.5px;color:var(--text3)">{{ o.customer }} · {{ o.date }}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">₹{{ "{:,}".format(o.amount|int) }}</div>
+          <span class="badge {% if o.status=='Delivered' %}bg-green{% elif o.status=='Cancelled' %}bg-red{% elif o.status=='Pending' %}bg-yellow{% else %}bg-blue{% endif %}">{{ o.status }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:32px"><div class="ei">📦</div><p>No orders yet</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="c-head">
+      <div class="c-title"><i class="fa fa-trophy"></i> Top Products by Revenue</div>
+      <a href="/admin/products" class="btn btn-outline btn-xs">Manage →</a>
+    </div>
+    <div class="c-body-0">
+      {% for p in top_products %}
+      <div class="d-flex ai-c g12" style="padding:12px 18px;border-bottom:1px solid var(--line)">
+        <div style="font-size:22px">{{ p.emoji }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name[:30] }}</div>
+          <div style="font-size:11px;color:var(--text4)">{{ p.category }} · {{ p.units }} units</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:700;color:var(--green)">₹{{ "{:,.0f}".format(p.revenue|float) }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:32px"><div class="ei">🏆</div><p>No sales data yet</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const pal = ['#FF6F00','#58A6FF','#E3B341','#F85149','#BC8CFF','#00E5CC','#3FB950'];
+const days  = {{ daily_sales|map(attribute='day')|map('string')|list|tojson if daily_sales else ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']|tojson }};
+const revs  = {{ trend_data.monthly_sales|tojson }};
+const ords  = {{ daily_sales|map(attribute='orders')|list|tojson if daily_sales else [0,0,0,0,0,0,0]|tojson }};
+const cats  = {{ cat_split|map(attribute='category')|list|tojson }};
+const catR  = {{ cat_split|map(attribute='revenue')|map('float')|list|tojson }};
+const tops  = {{ top_products|map(attribute='name')|list|tojson }};
+const topR  = {{ top_products|map(attribute='revenue')|map('float')|list|tojson }};
+
+// Revenue + Orders line chart
+new Chart(document.getElementById('revenueChart'), {
+  data: {
+    labels: days,
+    datasets: [
+      { type:'bar', label:'Revenue (₹)', data: revs, backgroundColor:'rgba(255,111,0,.25)',
+        borderColor:'#FF6F00', borderWidth:1.5, borderRadius:4, yAxisID:'y', order:2 },
+      { type:'line', label:'Orders', data: ords, borderColor:'#58A6FF', backgroundColor:'transparent',
+        pointBackgroundColor:'#58A6FF', pointRadius:4, pointBorderColor:'#0D1117', pointBorderWidth:2,
+        borderWidth:2, tension:.4, yAxisID:'y2', order:1 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index'},
+    plugins:{ legend:{display:false} },
+    scales:{
+      y:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{callback:v=>'₹'+(v/1000).toFixed(0)+'K'} },
+      y2:{ position:'right', grid:{display:false}, ticks:{color:'#58A6FF'} }
+    }
+  }
+});
+
+// Category donut
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: { labels: cats, datasets:[{ data: catR, backgroundColor: pal, borderWidth:0, hoverOffset:6 }] },
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{display:false} } }
+});
+</script>
+{% endblock %}

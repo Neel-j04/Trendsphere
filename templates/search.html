@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+<div class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">🔍 Search Results for "{{ query }}"</div>
+      <div class="section-sub">{{ products|length }} products found</div>
+    </div>
+  </div>
+
+  {% if products %}
+  <div class="prod-grid">
+    {% for p in products %}
+    <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+      <div class="product-img">
+        {{ p.emoji|default('📦') }}
+        <div class="p-wishlist" onclick="event.stopPropagation();showToast('Added to wishlist ❤️')">♡</div>
+        {% if p.badge %}<div class="p-badge {{ p.badge }}">{% if p.badge=='hot' %}🔥 HOT{% elif p.badge=='new' %}NEW{% else %}TOP{% endif %}</div>{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="p-brand">{{ p.brand }}</div>
+        <div class="p-name">{{ p.name }}</div>
+        <div class="p-rating">
+          <span class="stars">{% for i in range(5) %}{% if p.avg_rating and i < p.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+          <span class="rcount">({{ "{:,}".format(p.review_count|default(0)) }})</span>
+        </div>
+        <div class="p-price">
+          <span class="p-now">₹{{ "{:,}".format(p.price) }}</span>
+          {% if p.was_price %}
+          <span class="p-was">₹{{ "{:,}".format(p.was_price) }}</span>
+          <span class="p-off">{{ ((p.was_price - p.price) / p.was_price * 100)|int }}% off</span>
+          {% endif %}
+        </div>
+        <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)">
+          <i class="fa fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span style="font-size:64px">🔍</span>
+    <h3>No products found</h3>
+    <p>Try searching with different keywords or browse our categories.</p>
+    <a href="/products" class="btn btn-primary">Browse All Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block extra_css %}
+<style>
+.products-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;max-width:1400px;margin:0 auto;padding:24px 32px}
+.filter-sidebar{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px;height:fit-content;position:sticky;top:90px}
+.filter-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.filter-clear{font-size:12px;color:var(--teal);cursor:pointer;font-weight:600}
+.filter-group{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border-light)}
+.filter-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.filter-group-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.filter-check{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:13.5px;color:var(--text3);transition:color .15s}
+.filter-check:hover{color:var(--primary)}
+.filter-check input{accent-color:var(--primary);width:15px;height:15px}
+.filter-range{display:flex;gap:8px;margin-top:8px}
+.filter-range input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:12px;text-align:center}
+.filter-range input:focus{border-color:var(--primary)}
+.products-main{}
+.products-toolbar{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;margin-bottom:16px}
+.result-count{font-size:14px;color:var(--text3)}
+.result-count strong{color:var(--text);font-weight:700}
+.sort-select{border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:8px 14px;font-size:13px;color:var(--text2);background:#fff;cursor:pointer;appearance:none;padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.sort-select:focus{border-color:var(--primary)}
+.all-prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.all-prod-grid .product-img{height:185px}
+.cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cat-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--border);color:var(--text3);cursor:pointer;background:#fff;transition:all .2s}
+.cat-tab:hover{border-color:var(--primary);color:var(--primary)}
+.cat-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.no-results{text-align:center;padding:80px 20px;color:var(--text-muted)}
+.no-results .icon{font-size:64px;margin-bottom:16px}
+.no-results h3{font-size:20px;font-weight:700;color:var(--text2);margin-bottom:8px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <a href="/">Home</a><span class="sep">/</span>
+  <span>{% if active_cat %}{{ active_cat }}{% elif search %}Search: "{{ search }}"{% else %}All Products{% endif %}</span>
+</div>
+
+<div class="products-layout">
+  <!-- Filter Sidebar -->
+  <aside class="filter-sidebar">
+    <div class="filter-title">Filters <span class="filter-clear" onclick="window.location='/products'">Clear All</span></div>
+    <div class="filter-group">
+      <div class="filter-group-title">Category</div>
+      {% for cat in categories %}
+      <label class="filter-check">
+        <input type="checkbox" {% if active_cat==cat %}checked{% endif %} onchange="filterCat('{{ cat }}')"> {{ cat }}
+      </label>
+      {% endfor %}
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Price Range (₹)</div>
+      <div class="filter-range">
+        <input type="number" placeholder="Min" id="priceMin">
+        <input type="number" placeholder="Max" id="priceMax">
+      </div>
+      <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" onclick="applyPriceFilter()">Apply</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Rating</div>
+      {% for r in [4,3,2] %}
+      <label class="filter-check">
+        <input type="checkbox"> {{ r }}★ & above
+      </label>
+      {% endfor %}
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Availability</div>
+      <label class="filter-check"><input type="checkbox" checked> In Stock</label>
+      <label class="filter-check"><input type="checkbox"> On Sale</label>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">AI Trend Score</div>
+      <label class="filter-check"><input type="checkbox"> 🔥 Hot (Predicted)</label>
+      <label class="filter-check"><input type="checkbox"> 📈 Rising</label>
+      <label class="filter-check"><input type="checkbox"> ✅ Steady</label>
+    </div>
+  </aside>
+
+  <!-- Products Main -->
+  <div class="products-main">
+    <div class="cat-tabs">
+      <a href="/products" class="cat-tab {% if not active_cat %}active{% endif %}">All</a>
+      {% for cat in categories %}
+      <a href="/products?cat={{ cat }}" class="cat-tab {% if active_cat==cat %}active{% endif %}">{{ cat }}</a>
+      {% endfor %}
+    </div>
+    <div class="products-toolbar">
+      <div class="result-count">Showing <strong>{{ products|length }}</strong> results{% if active_cat %} in <strong>{{ active_cat }}</strong>{% endif %}{% if search %} for "<strong>{{ search }}</strong>"{% endif %}</div>
+      <form method="get" action="/products" style="display:flex;align-items:center;gap:10px">
+        {% if active_cat %}<input type="hidden" name="cat" value="{{ active_cat }}">{% endif %}
+        {% if search %}<input type="hidden" name="q" value="{{ search }}">{% endif %}
+        <label style="font-size:13px;color:var(--text3)">Sort by:</label>
+        <select class="sort-select" name="sort" onchange="this.form.submit()">
+          <option value="popular" {% if sort=='popular' %}selected{% endif %}>Popularity</option>
+          <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>Price: Low → High</option>
+          <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Price: High → Low</option>
+          <option value="rating" {% if sort=='rating' %}selected{% endif %}>Customer Rating</option>
+        </select>
+        <button class="btn btn-outline btn-sm" type="submit"><i class="fa fa-filter"></i> Filter</button>
+      </form>
+    </div>
+
+    {% if products %}
+    <div class="all-prod-grid">
+      {% for p in products %}
+      <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+        <div class="product-img">
+          {{ p.emoji|default('📦') }}
+          <div class="p-wishlist" onclick="event.stopPropagation();showToast('Added to wishlist ❤️')">♡</div>
+          {% if p.badge %}<div class="p-badge {{ p.badge }}">{% if p.badge=='hot' %}🔥 HOT{% elif p.badge=='new' %}NEW{% else %}TOP{% endif %}</div>{% endif %}
+        </div>
+        <div class="product-info">
+          <div class="p-brand">{{ p.brand }}</div>
+          <div class="p-name">{{ p.name }}</div>
+          <div class="p-rating">
+            <span class="stars">{% for i in range(5) %}{% if p.avg_rating and i < p.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+            <span class="rcount">({{ "{:,}".format(p.review_count|default(0)) }})</span>
+          </div>
+          <div class="p-price">
+            <span class="p-now">₹{{ "{:,}".format(p.price) }}</span>
+            {% if p.was_price %}<span class="p-was">₹{{ "{:,}".format(p.was_price) }}</span>
+            <span class="p-off">{{ ((p.was_price - p.price) / p.was_price * 100)|int }}% off</span>{% endif %}
+          </div>
+          <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)">
+            <i class="fa fa-cart-plus"></i> Add to Cart
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results">
+      <div class="icon">🔍</div>
+      <h3>No products found</h3>
+      <p>Try adjusting your filters or search terms</p>
+      <a href="/products" class="btn btn-primary" style="margin-top:16px">View All Products</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterCat(cat) { window.location = '/products?cat=' + cat; }
+function applyPriceFilter() {
+  const min = document.getElementById('priceMin').value;
+  const max = document.getElementById('priceMax').value;
+  showToast('Price filter applied (demo)');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "admin_base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<div class="ph">
+  <div class="ph-left">
+    <div class="ph-crumb"><span>Admin</span><span class="c-m">/</span><span class="cur">Orders</span></div>
+    <h1>Orders</h1>
+    <p>Manage and track all customer orders.</p>
+  </div>
+</div>
+
+<!-- Status tabs -->
+<div style="display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap;padding-bottom:2px;border-bottom:1px solid var(--line)">
+  {% set statuses_list = [('', 'All'), ('Pending','Pending'), ('Processing','Processing'), ('Dispatched','Dispatched'), ('Delivered','Delivered'), ('Cancelled','Cancelled')] %}
+  {% for val, label in statuses_list %}
+  <a href="/admin/orders?status={{ val }}" style="padding:8px 16px;font-size:13px;font-weight:600;border-radius:var(--r-sm);transition:all .15s;
+    {% if active_status == val %}background:var(--glow3);color:var(--glow){% else %}color:var(--text3){% endif %}">
+    {{ label }}
+    {% if val == '' %}<span class="badge bg-muted" style="font-size:10px;margin-left:4px">{{ status_counts.values()|sum if status_counts else '' }}</span>
+    {% elif status_counts.get(label) %}<span class="badge bg-muted" style="font-size:10px;margin-left:4px">{{ status_counts.get(label, '') }}</span>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Search -->
+<div class="card mb-20">
+  <div class="c-body">
+    <form method="GET" class="d-flex g8 ai-c">
+      {% if active_status %}<input type="hidden" name="status" value="{{ active_status }}">{% endif %}
+      <div style="position:relative;flex:1">
+        <i class="fa fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px"></i>
+        <input name="q" class="f-ctrl" style="padding-left:32px" placeholder="Search by order code, customer name, email…" value="{{ search }}">
+      </div>
+      <button class="btn btn-outline btn-sm"><i class="fa fa-search"></i> Search</button>
+      {% if search %}<a href="/admin/orders?status={{ active_status }}" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+  <div class="c-body-0">
+    <table class="tbl">
+      <thead>
+        <tr><th>Order</th><th>Customer</th><th>Products</th><th>Amount</th><th>Payment</th><th>Date</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><a href="/admin/orders/{{ o.id }}" style="font-weight:700;color:var(--glow)">{{ o.order_code }}</a></td>
+          <td>
+            <div style="font-weight:600;color:var(--text)">{{ o.customer }}</div>
+            <div style="font-size:11px;color:var(--text4)">{{ o.customer_email }}</div>
+          </td>
+          <td style="font-size:12px;color:var(--text3);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            {{ o.products[:60] ~ '…' if o.products and o.products|length > 60 else o.products or '—' }}
+          </td>
+          <td style="font-weight:700;color:var(--text)">₹{{ "{:,}".format(o.amount|int) }}</td>
+          <td><span class="tag">{{ o.payment_method or 'COD' }}</span></td>
+          <td style="font-size:12px;color:var(--text3)">{{ o.placed_at.strftime('%d %b %Y') if o.placed_at else '—' }}</td>
+          <td>
+            <span class="badge {% if o.status=='Delivered' %}bg-green{% elif o.status=='Cancelled' %}bg-red{% elif o.status=='Dispatched' %}bg-teal{% elif o.status=='Processing' %}bg-blue{% else %}bg-yellow{% endif %}">
+              {{ o.status }}
+            </span>
+          </td>
+          <td><a href="/admin/orders/{{ o.id }}" class="btn btn-outline btn-xs"><i class="fa fa-eye"></i> View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><div class="empty" style="padding:48px"><div class="ei">📦</div><p>No orders found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+/* HERO */
+.hero-section{position:relative;overflow:hidden;background:#fff}
+.hero-slides{display:flex;height:430px;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
+.hero-slide{min-width:100%;height:100%;position:relative;display:flex;align-items:center;overflow:hidden}
+.hero-slide-1{background:linear-gradient(110deg,#FFF8F0 0%,#FFE0C0 50%,#FFF3E0 100%)}
+.hero-slide-2{background:linear-gradient(110deg,#E8F5FF 0%,#C8E8FF 50%,#E0F0FF 100%)}
+.hero-slide-3{background:linear-gradient(110deg,#F0FFF4 0%,#C8F0D8 50%,#E0FAE8 100%)}
+.hero-content{position:relative;z-index:2;padding:0 80px;max-width:1400px;margin:0 auto;width:100%}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px}
+.hero-badge::before{content:'●';font-size:7px;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-title{font-family:var(--font-display);font-size:clamp(30px,4.5vw,56px);font-weight:800;line-height:1.1;color:var(--navy);margin-bottom:14px;letter-spacing:-1px}
+.hero-title .hl{color:var(--primary)}.hero-title .hl2{color:var(--teal)}
+.hero-sub{font-size:16px;color:var(--text3);margin-bottom:28px;max-width:420px;line-height:1.7}
+.hero-ctas{display:flex;gap:12px;align-items:center}
+.hero-floating{position:absolute;right:80px;top:50%;transform:translateY(-50%);background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;width:260px;box-shadow:var(--shadow-lg);z-index:2;animation:floatY 4s ease-in-out infinite}
+@keyframes floatY{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 10px))}}
+.float-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.float-ttl{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.live-badge{background:#FFE0E0;color:var(--red);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.trend-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.trend-row:last-child{border-bottom:none}
+.t-rank{font-size:16px;font-weight:800;color:#ddd;width:18px}
+.t-rank.top{color:var(--primary)}
+.t-info .tname{font-size:12.5px;font-weight:600;color:var(--text)}
+.t-info .tcat{font-size:11px;color:var(--text-muted)}
+.t-up{color:var(--green);font-size:12px;font-weight:700;margin-left:auto}
+.hero-nav{position:absolute;top:50%;z-index:3;transform:translateY(-50%);background:rgba(255,255,255,.85);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+.hero-nav:hover{background:#fff;box-shadow:var(--shadow-md)}
+.hero-prev{left:16px}.hero-next{right:16px}
+.hero-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+.hdot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.2);cursor:pointer;transition:all .3s}
+.hdot.active{background:var(--primary);width:22px;border-radius:4px}
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
+.cat-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:18px 10px;text-align:center;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.cat-card:hover{border-color:var(--primary);box-shadow:var(--shadow-hover);transform:translateY(-3px)}
+.cat-icon{font-size:30px;margin-bottom:8px;display:block;transition:transform .22s}
+.cat-card:hover .cat-icon{transform:scale(1.15)}
+.cat-name{font-size:11.5px;font-weight:600;color:var(--text2)}
+.cat-count{font-size:10px;color:var(--text-muted);margin-top:2px}
+/* DEALS */
+.deals-section{background:#fff;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light)}
+.deals-outer{max-width:1400px;margin:0 auto;padding:0 32px}
+.deals-header{display:flex;align-items:center;gap:28px;padding:18px 0 16px;border-bottom:1px solid var(--border-light)}
+.deals-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.countdown-blocks{display:flex;gap:6px}
+.cblock{background:var(--navy);color:#fff;border-radius:var(--radius-xs);padding:5px 10px;text-align:center;min-width:48px}
+.cnum{font-size:18px;font-weight:800;display:block;font-family:var(--font-display)}
+.clabel{font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:.7}
+.deals-products{display:flex;gap:14px;overflow-x:auto;padding:20px 0;scrollbar-width:thin}
+.deals-products .product-card{flex-shrink:0;width:195px}
+.deals-products .product-img{height:155px}
+/* PROMO BANNERS */
+.promo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.promo-card{border-radius:var(--radius-lg);padding:28px 24px;position:relative;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s;border:1.5px solid var(--border)}
+.promo-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.promo-card h3{font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:8px}
+.promo-card p{font-size:13px;opacity:.8;margin-bottom:14px}
+.promo-badge{position:absolute;top:14px;right:14px;font-size:40px}
+/* AI SECTION */
+.ai-section{background:linear-gradient(135deg,#131921 0%,#1A2433 60%,#0D3A45 100%);padding:48px 32px;position:relative;overflow:hidden}
+.ai-inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.ai-left h2{font-family:var(--font-display);font-size:36px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px}
+.ai-left p{font-size:15px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:24px}
+.ai-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+.ai-stat-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:16px;text-align:center}
+.ai-stat-val{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--yellow)}
+.ai-stat-lbl{font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.ai-chart-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-lg);padding:24px}
+.ai-chart-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.mini-bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px}
+.mini-bar{flex:1;background:linear-gradient(180deg,var(--primary) 0%,rgba(255,111,0,.3) 100%);border-radius:3px 3px 0 0;position:relative;transition:height .5s}
+.mini-bar-label{font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-top:6px}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-slides" id="heroSlides">
+    <div class="hero-slide hero-slide-1">
+      <div class="hero-content">
+        <div class="hero-badge">🤖 AI Predicted #1 Trend</div>
+        <h1 class="hero-title">Shop Tomorrow's<br>Trends <span class="hl">Today</span></h1>
+        <p class="hero-sub">Our AI engine analyzes 10M+ data points to predict which products will go viral next. Get ahead of the curve.</p>
+        <div class="hero-ctas">
+          <a href="/products" class="btn btn-primary btn-lg">🛍️ Shop Now</a>
+          <a href="/admin/trends" class="btn btn-navy btn-lg">📊 See Predictions</a>
+        </div>
+      </div>
+      <div class="hero-floating">
+        <div class="float-header">
+          <span class="float-ttl">🔥 Trending Now</span>
+          <span class="live-badge">● LIVE</span>
+        </div>
+        {% for item in trend_data.trending[:4] %}
+        <div class="trend-row">
+          <div class="t-rank {% if loop.index <= 2 %}top{% endif %}">{{ loop.index }}</div>
+          <div class="t-info">
+            <div class="tname">{{ item.name }}</div>
+            <div class="tcat">{{ item.category }}</div>
+          </div>
+          <span class="t-up">{{ item.change }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="hero-slide hero-slide-2">
+      <div class="hero-content">
+        <div class="hero-badge" style="background:var(--teal)">⚡ Flash Sale — Ends Tonight</div>
+        <h1 class="hero-title">Up to <span class="hl2">60% Off</span><br>Electronics</h1>
+        <p class="hero-sub">Smartphones, laptops, headphones and more at unbeatable prices. Limited stock available.</p>
+        <div class="hero-ctas">
+          <a href="/products?cat=Electronics" class="btn btn-primary btn-lg">📱 Shop Electronics</a>
+          <a href="/products?badge=hot" class="btn btn-outline btn-lg">🔥 All Deals</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-slide hero-slide-3">
+      <div class="hero-content">
+        <div class="hero-badge" style="background:var(--green)">🌱 New Arrivals</div>
+        <h1 class="hero-title">Fresh Styles,<br><span class="hl">New Season</span></h1>
+        <p class="hero-sub">Discover the latest fashion drops and home décor trends curated by our AI recommendation engine.</p>
+        <div class="hero-ctas">
+          <a href="/products?cat=Fashion" class="btn btn-primary btn-lg">👗 Shop Fashion</a>
+          <a href="/about" class="btn btn-outline btn-lg">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="hero-nav hero-prev" onclick="changeSlide(-1)">‹</button>
+  <button class="hero-nav hero-next" onclick="changeSlide(1)">›</button>
+  <div class="hero-dots">
+    <div class="hdot active" onclick="goSlide(0)"></div>
+    <div class="hdot" onclick="goSlide(1)"></div>
+    <div class="hdot" onclick="goSlide(2)"></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Shop by <span>Category</span></div>
+      <div class="section-sub">Explore our wide range of products</div>
+    </div>
+    <a href="/products" class="view-all">View All →</a>
+  </div>
+  <div class="cat-grid">
+    {% set cats = [('📱','Electronics','2,340+'),('👗','Fashion','5,120+'),('🏠','Home','1,890+'),('💄','Beauty','3,670+'),('📚','Books','8,200+'),('⚽','Sports','1,430+'),('🧸','Toys','980+'),('💻','Computers','670+')] %}
+    {% for icon, name, count in cats %}
+    <a href="/products?cat={{ name }}" class="cat-card">
+      <span class="cat-icon">{{ icon }}</span>
+      <div class="cat-name">{{ name }}</div>
+      <div class="cat-count">{{ count }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- DEALS OF THE DAY -->
+<div class="deals-section">
+  <div class="deals-outer">
+    <div class="deals-header">
+      <div class="deals-title">🔥 Deals of the Day</div>
+      <div style="font-size:12px;color:var(--text3);font-weight:500">Ends in:</div>
+      <div class="countdown-blocks">
+        <div class="cblock"><span class="cnum" id="dh">04</span><span class="clabel">Hrs</span></div>
+        <div class="cblock"><span class="cnum" id="dm">00</span><span class="clabel">Min</span></div>
+        <div class="cblock"><span class="cnum" id="ds">00</span><span class="clabel">Sec</span></div>
+      </div>
+      <a href="/products?badge=hot" class="view-all" style="margin-left:auto">See All Deals →</a>
+    </div>
+    <div class="deals-products">
+      {% for p in deals %}
+      <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+        <div class="product-img">
+          {{ p.emoji }}
+          <div class="p-wishlist" onclick="event.stopPropagation();showToast('Added to wishlist ❤️')">♡</div>
+          {% if p.badge %}<div class="p-badge {{ p.badge }}">{% if p.badge=='hot' %}🔥 HOT{% elif p.badge=='new' %}NEW{% else %}TOP{% endif %}</div>{% endif %}
+        </div>
+        <div class="product-info">
+          <div class="p-brand">{{ p.brand }}</div>
+          <div class="p-name">{{ p.name }}</div>
+          <div class="p-rating">
+            <span class="stars">{% for i in range(5) %}{% if p.avg_rating and i < p.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+            <span class="rcount">({{ "{:,}".format(p.review_count|default(0)) }})</span>
+          </div>
+          <div class="p-price">
+            <span class="p-now">₹{{ "{:,}".format(p.price) }}</span>
+            {% if p.was_price %}
+            <span class="p-was">₹{{ "{:,}".format(p.was_price) }}</span>
+            <span class="p-off">{{ ((p.was_price - p.price) / p.was_price * 100)|int }}% off</span>
+            {% endif %}
+          </div>
+          <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)">
+            <i class="fa fa-cart-plus"></i> Add to Cart
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- AI TREND SECTION -->
+<section class="ai-section">
+  <div class="ai-inner">
+    <div class="ai-left">
+      <h2>🤖 AI-Powered <br>Trend Intelligence</h2>
+      <p>TrendSphere's ML engine uses LSTM neural networks, XGBoost, and Facebook Prophet to forecast demand 30 days ahead — with 94.3% accuracy.</p>
+      <a href="/admin/trends" class="btn btn-yellow btn-lg">📈 Explore Predictions</a>
+      <div class="ai-stats">
+        <div class="ai-stat-box"><div class="ai-stat-val">94.3%</div><div class="ai-stat-lbl">Accuracy</div></div>
+        <div class="ai-stat-box"><div class="ai-stat-val">10M+</div><div class="ai-stat-lbl">Data Points</div></div>
+        <div class="ai-stat-box"><div class="ai-stat-val">30-Day</div><div class="ai-stat-lbl">Forecast</div></div>
+      </div>
+    </div>
+    <div class="ai-right">
+      <div class="ai-chart-box">
+        <div class="ai-chart-title">📊 Monthly Sales Trend (2024)</div>
+        <div class="mini-bar-chart" id="miniChart"></div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          {% set months = ['J','F','M','A','M','J','J','A','S','O','N','D'] %}
+          {% for m in months %}
+          <div style="flex:1;text-align:center;font-size:9px;color:rgba(255,255,255,.4)">{{ m }}</div>
+          {% endfor %}
+        </div>
+        <div style="margin-top:16px;display:flex;gap:16px;align-items:center">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6)">
+            <div style="width:12px;height:12px;background:var(--primary);border-radius:2px"></div> Actual
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6)">
+            <div style="width:12px;height:12px;background:var(--yellow);border-radius:2px"></div> Predicted
+          </div>
+          <span style="margin-left:auto;font-size:12px;color:var(--green);font-weight:700">↑ 47% YoY growth</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO BANNERS -->
+<section class="section">
+  <div class="promo-grid">
+    <a href="/products?cat=Electronics" class="promo-card" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB)">
+      <span class="promo-badge">📱</span>
+      <h3 style="color:#1565C0">Tech Deals</h3>
+      <p style="color:#1565C0">Up to 50% off on premium gadgets</p>
+      <span class="btn btn-navy btn-sm">Shop Now →</span>
+    </a>
+    <a href="/products?cat=Fashion" class="promo-card" style="background:linear-gradient(135deg,#FCE4EC,#F8BBD9)">
+      <span class="promo-badge">👗</span>
+      <h3 style="color:#880E4F">Fashion Week</h3>
+      <p style="color:#880E4F">New season arrivals at great prices</p>
+      <span class="btn btn-sm" style="background:#880E4F;color:#fff">Shop Now →</span>
+    </a>
+    <a href="/products?cat=Home" class="promo-card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9)">
+      <span class="promo-badge">🏠</span>
+      <h3 style="color:#1B5E20">Home Makeover</h3>
+      <p style="color:#1B5E20">Transform your space for less</p>
+      <span class="btn btn-sm" style="background:#1B5E20;color:#fff">Shop Now →</span>
+    </a>
+  </div>
+</section>
+
+<!-- TRENDING PRODUCTS -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">🔮 <span>AI-Trending</span> Products</div>
+      <div class="section-sub">Predicted to go viral in the next 30 days</div>
+    </div>
+    <a href="/products" class="view-all">View All →</a>
+  </div>
+  <div class="prod-grid">
+    {% for p in trending %}
+    <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+      <div class="product-img">
+        {{ p.emoji }}
+        <div class="p-wishlist" onclick="event.stopPropagation();showToast('Added to wishlist ❤️')">♡</div>
+        {% if p.badge %}<div class="p-badge {{ p.badge }}">{% if p.badge=='hot' %}🔥 HOT{% elif p.badge=='new' %}NEW{% else %}TOP{% endif %}</div>{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="p-brand">{{ p.brand }}</div>
+        <div class="p-name">{{ p.name }}</div>
+        <div class="p-rating">
+          <span class="stars">{% for i in range(5) %}{% if p.avg_rating and i < p.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</span>
+          <span class="rcount">({{ "{:,}".format(p.review_count|default(0)) }})</span>
+        </div>
+        <div class="p-price">
+          <span class="p-now">₹{{ "{:,}".format(p.price) }}</span>
+          {% if p.was_price %}
+          <span class="p-was">₹{{ "{:,}".format(p.was_price) }}</span>
+          <span class="p-off">{{ ((p.was_price - p.price) / p.was_price * 100)|int }}% off</span>
+          {% endif %}
+        </div>
+        <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)">
+          <i class="fa fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- FEATURES STRIP -->
+<section style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px 32px">
+  <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+    {% set features = [('🚚','Free Delivery','On orders above ₹499'),('🔄','Easy Returns','30-day hassle-free returns'),('🔒','Secure Payment','100% safe & encrypted'),('🤖','AI-Powered','Personalized recommendations')] %}
+    {% for icon, title, desc in features %}
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 24px;{% if not loop.last %}border-right:1px solid var(--border);{% endif %}">
+      <span style="font-size:32px">{{ icon }}</span>
+      <div>
+        <div style="font-weight:700;font-size:14px;color:var(--navy)">{{ title }}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">{{ desc }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Hero slider
+let cur = 0, total = 3, auto;
+function changeSlide(dir) {
+  cur = (cur + dir + total) % total;
+  document.getElementById('heroSlides').style.transform = `translateX(-${cur*100}%)`;
+  document.querySelectorAll('.hdot').forEach((d,i) => d.classList.toggle('active', i===cur));
+}
+function goSlide(n) { cur = n-1; changeSlide(1); }
+auto = setInterval(() => changeSlide(1), 5000);
+
+// Countdown
+let secs = 4*3600;
+setInterval(() => {
+  secs--;
+  document.getElementById('dh').textContent = String(Math.floor(secs/3600)).padStart(2,'0');
+  document.getElementById('dm').textContent = String(Math.floor((secs%3600)/60)).padStart(2,'0');
+  document.getElementById('ds').textContent = String(secs%60).padStart(2,'0');
+  if(secs<=0) secs=0;
+}, 1000);
+
+// Mini bar chart
+const data = {{ trend_data.monthly_sales | tojson }};
+const max = Math.max(...data);
+const chart = document.getElementById('miniChart');
+if(chart) {
+  data.forEach((v,i) => {
+    const bar = document.createElement('div');
+    bar.className = 'mini-bar';
+    bar.style.height = '0%';
+    bar.style.background = i >= 10 ? 'var(--yellow)' : 'linear-gradient(180deg,var(--primary) 0%,rgba(255,111,0,.3) 100%)';
+    chart.appendChild(bar);
+    setTimeout(() => bar.style.height = (v/max*100)+'%', 100 + i*50);
+  });
+}
+</script>
+{% endblock %}

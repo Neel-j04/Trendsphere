@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.detail-layout{display:grid;grid-template-columns:1fr 1.1fr 360px;gap:28px;max-width:1400px;margin:0 auto;padding:28px 32px;align-items:start}
+.img-box{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;position:sticky;top:90px}
+.main-img{font-size:120px;line-height:1;margin-bottom:20px;animation:floatImg 4s ease-in-out infinite}
+@keyframes floatImg{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.thumb-row{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.thumb{width:52px;height:52px;background:#F7F7F7;border:1.5px solid var(--border);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:border-color .2s}
+.thumb:hover,.thumb.active{border-color:var(--primary)}
+.detail-info{}
+.p-detail-brand{font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.p-detail-name{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--navy);line-height:1.2;margin-bottom:14px}
+.p-detail-rating{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border-light)}
+.rating-box{background:#388E3C;color:#fff;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:15px;font-weight:700}
+.review-count{font-size:14px;color:var(--teal);cursor:pointer;text-decoration:underline}
+.price-section{margin-bottom:20px}
+.detail-was{font-size:14px;color:var(--text-muted)}
+.detail-off{color:var(--red);font-size:16px;font-weight:700}
+.detail-now{font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--navy)}
+.saving{font-size:13px;color:var(--green);font-weight:600;margin-top:4px}
+.offers-box{background:#FFF8F0;border:1px solid #FFD180;border-radius:var(--radius-sm);padding:16px;margin-bottom:20px}
+.offers-box h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.offer-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:13px;color:var(--text2)}
+.offer-row i{color:var(--primary);margin-top:2px;flex-shrink:0}
+.highlights{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px}
+.highlights h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.highlight-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text2)}
+.highlight-key{font-weight:600;color:var(--text3);min-width:90px;flex-shrink:0}
+.desc-section{margin-bottom:20px}
+.desc-section h4{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.desc-section p{font-size:14px;color:var(--text3);line-height:1.8}
+/* BUY BOX */
+.buy-box{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:22px;position:sticky;top:90px}
+.buy-box .price{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.buy-box .delivery{font-size:13px;color:var(--text2);margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-light)}
+.stock-label{font-size:16px;font-weight:700;color:var(--green);margin-bottom:14px}
+.qty-picker{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.qty-btn{width:32px;height:32px;border:1.5px solid var(--border);border-radius:var(--radius-xs);background:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.qty-btn:hover{border-color:var(--primary);color:var(--primary)}
+.qty-val{font-size:16px;font-weight:700;min-width:30px;text-align:center}
+.btn-add-cart{background:var(--yellow);color:var(--navy);border:1.5px solid var(--yellow-dark);width:100%;padding:13px;border-radius:var(--radius-sm);font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-add-cart:hover{background:var(--yellow-dark)}
+.btn-buy-now{background:var(--grad-primary);color:#fff;width:100%;padding:13px;border-radius:var(--radius-sm);font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 14px rgba(255,111,0,.3)}
+.btn-buy-now:hover{transform:translateY(-1px)}
+.secure-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-bottom:12px}
+.sold-by{font-size:13px;color:var(--text3);border-top:1px solid var(--border-light);padding-top:12px;margin-top:4px}
+/* REVIEWS */
+.reviews-section{max-width:1400px;margin:0 auto;padding:0 32px 32px}
+.review-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:14px}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.reviewer-av{width:36px;height:36px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.reviewer-name{font-size:14px;font-weight:600;color:var(--text)}
+.review-date{font-size:12px;color:var(--text-muted)}
+.review-text{font-size:14px;color:var(--text2);line-height:1.7}
+.verified{font-size:11px;color:var(--green);font-weight:700;margin-left:auto}
+/* RELATED */
+.related-section{max-width:1400px;margin:0 auto;padding:0 32px 32px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <a href="/">Home</a><span class="sep">/</span>
+  <a href="/products?cat={{ product.category }}">{{ product.category }}</a><span class="sep">/</span>
+  <span>{{ product.name }}</span>
+</div>
+
+<div class="detail-layout">
+  <!-- Image -->
+  <div class="img-box">
+    <div class="main-img">{{ product.emoji|default('📦') }}</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">{{ product.name }}</div>
+    <div class="thumb-row">
+      {% for i in range(4) %}
+      <div class="thumb {% if loop.first %}active{% endif %}" onclick="document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active')">{{ product.emoji|default('📦') }}</div>
+      {% endfor %}
+    </div>
+    <div style="margin-top:20px;display:flex;gap:10px">
+      <button class="btn btn-outline btn-sm btn-full" onclick="showToast('Added to wishlist ❤️')"><i class="fa fa-heart"></i> Wishlist</button>
+      <button class="btn btn-outline btn-sm btn-full" onclick="showToast('Link copied! 🔗')"><i class="fa fa-share"></i> Share</button>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="detail-info">
+    <div class="p-detail-brand">{{ product.brand }}</div>
+    <h1 class="p-detail-name">{{ product.name }}</h1>
+    <div class="p-detail-rating">
+      <div class="rating-box">{{ product.avg_rating|default(0) }} ★</div>
+      <span class="review-count">{{ "{:,}".format(product.review_count|default(0)) }} ratings</span>
+      <span style="color:var(--text-muted);font-size:13px">|</span>
+      <span style="color:var(--text-muted);font-size:13px">{{ (product.review_count|default(0)) // 100 }} answered questions</span>
+    </div>
+    <div class="price-section">
+      {% if product.was_price %}
+      <div class="detail-was">M.R.P: <s>₹{{ "{:,}".format(product.was_price) }}</s> <span class="detail-off">({{ ((product.was_price - product.price) / product.was_price * 100)|int }}% off)</span></div>
+      {% endif %}
+      <div class="detail-now">₹{{ "{:,}".format(product.price) }}</div>
+      {% if product.was_price %}
+      <div class="saving">You save: ₹{{ "{:,}".format(product.was_price - product.price) }}</div>
+      {% endif %}
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Inclusive of all taxes. Free delivery above ₹499.</div>
+    </div>
+
+    <div class="offers-box">
+      <h4>🎁 Available Offers</h4>
+      <div class="offer-row"><i class="fa fa-tag"></i> <span><strong>Bank Offer:</strong> 10% instant discount on HDFC Bank Credit Cards</span></div>
+      <div class="offer-row"><i class="fa fa-tag"></i> <span><strong>EMI:</strong> Starting from ₹{{ "{:,.0f}".format(product.price / 12) }}/month</span></div>
+      <div class="offer-row"><i class="fa fa-tag"></i> <span><strong>TREND20:</strong> Extra 20% off with code TREND20</span></div>
+    </div>
+
+    <div class="highlights">
+      <h4>📋 Highlights</h4>
+      <div class="highlight-row"><span class="highlight-key">Brand</span><span>{{ product.brand }}</span></div>
+      <div class="highlight-row"><span class="highlight-key">Category</span><span>{{ product.category }}</span></div>
+      <div class="highlight-row"><span class="highlight-key">Brand</span><span style="color:var(--teal)">{{ product.brand }}</span></div>
+      <div class="highlight-row"><span class="highlight-key">Stock</span><span style="color:var(--green)">{{ product.stock }} units available</span></div>
+    </div>
+
+    <div class="desc-section">
+      <h4>📝 About This Item</h4>
+      <p>{{ product.description or 'This premium product from ' + product.brand + ' has been AI-verified as a trending item.' }}. This product has been AI-verified as a trending item with {% if product.was_price %}{{ ((product.was_price - product.price) / product.was_price * 100)|int }}{% else %}0{% endif %}% discount from its original price. Customer reviews consistently rate this among the top products in {{ product.category }} category.</p>
+      <ul style="margin-top:12px;padding-left:20px;font-size:14px;color:var(--text2);line-height:2">
+        <li>Premium quality from {{ product.brand }}</li>
+        <li>AI-verified trending product — predicted to stay popular for next 30 days</li>
+        <li>{{ "{:,}".format(product.review_count|default(0)) }} verified customer reviews</li>
+        <li>{{ product.avg_rating|default(0) }}/5.0 star rating</li>
+        <li>Fast delivery available across India</li>
+      </ul>
+    </div>
+
+    <!-- AI Trend Indicator -->
+    <div style="background:linear-gradient(135deg,#131921,#1A2433);border-radius:var(--radius-md);padding:18px;color:#fff">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:8px">🤖 AI Trend Analysis</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:13px;color:rgba(255,255,255,.8);margin-bottom:6px">Demand Forecast (Next 30 Days)</div>
+          <div style="height:8px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden">
+            <div style="width:{{ ((product.avg_rating|default(0))/5*100)|int }}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--yellow));border-radius:4px"></div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--yellow)">{{ ((product.avg_rating|default(0))/5*100)|int }}%</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5)">Trend Score</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy Box -->
+  <div>
+    <div class="buy-box">
+      <div class="price">₹{{ "{:,}".format(product.price) }}</div>
+      <div class="delivery">
+        <div style="color:var(--teal);font-weight:600;margin-bottom:4px">FREE Delivery</div>
+        <div>Estimated delivery: <strong>Dec 25 – Dec 27</strong></div>
+        <div style="margin-top:4px">Deliver to: 📍 Pune 411001</div>
+      </div>
+      <div class="stock-label">✅ In Stock ({{ product.stock }} left)</div>
+      <div class="qty-picker">
+        <span style="font-size:13px;font-weight:600;color:var(--text2)">Qty:</span>
+        <button class="qty-btn" onclick="updateQty(-1)">−</button>
+        <span class="qty-val" id="qty">1</span>
+        <button class="qty-btn" onclick="updateQty(1)">+</button>
+      </div>
+      <button class="btn-add-cart" onclick="addToCart({{ product.id }}, this)">
+        <i class="fa fa-cart-plus"></i> Add to Cart
+      </button>
+      <a href="/checkout" class="btn-buy-now">
+        <i class="fa fa-bolt"></i> Buy Now
+      </a>
+      <div class="secure-note"><i class="fa fa-lock"></i> Secure transaction — 256-bit SSL encryption</div>
+      <div class="sold-by">Sold by: <span style="color:var(--teal);font-weight:600">{{ product.brand }}</span></div>
+    </div>
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-top:14px">
+      <h4 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px">🔒 Return Policy</h4>
+      <div style="font-size:12.5px;color:var(--text3);line-height:1.8">
+        <div>✅ 30-day easy returns</div>
+        <div>✅ Free replacement</div>
+        <div>✅ No questions asked</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reviews -->
+<div class="reviews-section">
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-header">
+      <div class="card-title">⭐ Customer Reviews</div>
+      <span class="badge badge-green">{{ product.avg_rating|default(0) }}/5.0</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;margin-bottom:24px">
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:60px;font-weight:800;color:var(--navy);line-height:1">{{ product.avg_rating|default(0) }}</div>
+          <div style="color:#F0AC00;font-size:20px;margin:4px 0">{% for i in range(5) %}{% if product.avg_rating and i < product.avg_rating|int %}★{% else %}☆{% endif %}{% endfor %}</div>
+          <div style="font-size:12px;color:var(--text-muted)">{{ "{:,}".format(product.review_count|default(0)) }} ratings</div>
+        </div>
+        <div>
+          {% for stars, pct in [(5,70),(4,20),(3,6),(2,2),(1,2)] %}
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:13px;color:var(--teal);width:30px;text-align:right">{{ stars }}★</span>
+            <div style="flex:1;height:10px;background:#F0F0F0;border-radius:5px;overflow:hidden">
+              <div style="width:{{ pct }}%;height:100%;background:#F0AC00;border-radius:5px"></div>
+            </div>
+            <span style="font-size:12px;color:var(--text-muted);width:30px">{{ pct }}%</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% set reviews = [('Priya S.','P','Amazing product! Exactly as described. Delivery was super fast. The quality is outstanding. Would highly recommend to anyone looking for a great {{ product.category }} product.',4.9,'2 days ago'),('Rahul M.','R','Great value for money. The {{ product.brand }} quality is unmatchable. AI prediction was right — this is definitely a trending product!',4.5,'1 week ago'),('Anjali K.','A','Bought this based on TrendSphere\'s AI recommendation. Not disappointed at all. Packaging was excellent and the product works flawlessly.',5.0,'2 weeks ago')] %}
+      {% for name, initial, text, rating, date in reviews %}
+      <div class="review-card">
+        <div class="review-header">
+          <div class="reviewer-av">{{ initial }}</div>
+          <div>
+            <div class="reviewer-name">{{ name }}</div>
+            <div class="review-date">{{ date }}</div>
+          </div>
+          <div style="color:#F0AC00;font-size:13px;margin-left:10px">{% for i in range(5) %}{% if i < rating|int %}★{% else %}☆{% endif %}{% endfor %}</div>
+          <span class="verified">✅ Verified Purchase</span>
+        </div>
+        <p class="review-text">{{ text.replace('{{ product.category }}', product.category).replace('{{ product.brand }}', product.brand) }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Related -->
+{% if related %}
+<div class="related-section">
+  <div class="section-header">
+    <div class="section-title">🔗 Related <span>Products</span></div>
+  </div>
+  <div class="prod-grid">
+    {% for p in related %}
+    <div class="product-card" onclick="window.location='/product/{{ p.id }}'">
+      <div class="product-img">{{ p.emoji|default('📦') }}<div class="p-wishlist" onclick="event.stopPropagation()">♡</div></div>
+      <div class="product-info">
+        <div class="p-brand">{{ p.brand }}</div>
+        <div class="p-name">{{ p.name }}</div>
+        <div class="p-price"><span class="p-now">₹{{ "{:,}".format(p.price) }}</span></div>
+        <button class="p-add-btn" onclick="event.stopPropagation();addToCart({{ p.id }},this)"><i class="fa fa-cart-plus"></i> Add to Cart</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let qty = 1;
+function updateQty(d) {
+  qty = Math.max(1, Math.min(10, qty + d));
+  document.getElementById('qty').textContent = qty;
+}
+</script>
+{% endblock %}
